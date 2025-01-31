@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "108325895197",
+    "project_id": "jaby-ccf8d",
+    "storage_bucket": "jaby-ccf8d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:108325895197:android:99a0ec388cab37dda3daf4",
+        "android_client_info": {
+          "package_name": "com.example.jaby"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "108325895197-9v8li7fvgqmev1v0ih19f9fp7l5ksqk3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.jaby",
+            "certificate_hash": "b5e755d368473f7fbee76b3d8c1ddb025a87cb00"
+          }
+        },
+        {
+          "client_id": "108325895197-1pd8lsv1pa6725g7jfju941alsb7efnq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3Bp-81HNvlgl6woF8XJ7-d6ptyUP7L_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "108325895197-1pd8lsv1pa6725g7jfju941alsb7efnq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
