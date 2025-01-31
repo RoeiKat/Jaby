@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.login.EntryFragment"
+    android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:id="@+id/splash_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp"
+        >
+
+    <ImageView
+        android:id="@+id/splash_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/black"
+        android:paddingTop="150dp"
+        android:paddingLeft="150dp"
+        android:paddingRight="150dp"
+        android:paddingBottom="200dp"
+        android:layout_centerHorizontal="true"
+        />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/splash_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/splash_img"
+        android:layout_marginTop="25dp"
+        android:text="@string/header1"
+        android:textStyle="bold"
+        android:textSize="32sp"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        />
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/splash_header2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/splash_header"
+            android:layout_marginTop="10dp"
+            android:text="@string/header2"
+            android:textStyle="bold"
+            android:textSize="24sp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            />
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_below="@+id/splash_header2"
+        android:id="@+id/splash_txt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/splash_txt"
+        android:layout_marginTop="10dp"
+        android:textAlignment="center"
+        android:paddingEnd="50dp"
+        android:paddingStart="50dp"
+        android:textSize="20sp"
+        />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/btn_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/splash_container"
+        android:paddingStart="40dp"
+        android:paddingEnd="40dp"
+        >
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_sign_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="@string/sign_up"
+        android:paddingTop="@dimen/btn_padding_tb"
+        android:paddingBottom="@dimen/btn_padding_tb"
+        android:paddingStart="@dimen/btn_padding_lr"
+        android:paddingEnd="@dimen/btn_padding_lr"
+        android:layout_alignParentStart="true"
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_sign_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="@string/sign_in"
+        android:paddingTop="@dimen/btn_padding_tb"
+        android:paddingBottom="@dimen/btn_padding_tb"
+        android:paddingStart="@dimen/btn_padding_lr"
+        android:paddingEnd="@dimen/btn_padding_lr"
+        android:layout_alignParentEnd="true"
+        />
+
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

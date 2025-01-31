@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.secrets.gradle)
 }
 
 android {
@@ -37,6 +38,9 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    viewBinding {
+        enable = true
+    }
 }
 
 dependencies {
@@ -52,6 +56,11 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.annotation)
+
+    implementation(libs.gson)
+    implementation (libs.dagger.hilt.android)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.login.SignUpFragment"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/back_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back"
+        android:layout_margin="15dp"
+        android:textColor="@color/black"
+
+        android:textSize="20sp"
+        />
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/header_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="@string/create_an_account"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        android:layout_marginTop="100dp"
+        />
+    <RelativeLayout
+        android:id="@+id/sign_in_container"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/header_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        >
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/sign_in_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/existing_account"
+        android:textSize="14sp"
+        />
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_toEndOf="@id/sign_in_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:text="@string/sign_in"
+        android:textColor="@color/black"
+        />
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_below="@id/sign_in_container"
+        android:id="@+id/form_container"
+        android:padding="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+    <EditText
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:padding="15dp"
+        android:background="#F1F1F1F1"
+        android:hint="@string/email"
+        android:inputType="text"
+        />
+    <EditText
+        android:layout_width="300dp"
+        android:layout_margin="10dp"
+        android:background="#F1F1F1F1"
+        android:padding="15dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sign_up_btn"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/continue_btn"
+            android:textAllCaps="false"
+            android:padding="15dp"
+            />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/sign_up_alt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="or sign up with"
+        android:layout_below="@id/form_container"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/google_sign_up_btn"
+        android:layout_width="300dp"
+        android:padding="10dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sign_up_alt"
+        android:layout_centerHorizontal="true"
+        android:text="Sign up with google"
+        android:textAllCaps="false"
+        />
+    <TextView
+
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/google_sign_up_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:layout_margin="50dp"
+        android:text="By clicking Continue you agree to Jaby Terms of use and Privacy policy"/>
+
+</RelativeLayout>
