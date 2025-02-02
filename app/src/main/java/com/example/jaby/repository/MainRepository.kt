@@ -8,10 +8,6 @@ class MainRepository @Inject constructor(
     private val firebaseClient: FirebaseClient
 ) {
 
-    fun getMainRepository() : MainRepository {
-        return this
-    }
-
     fun login(username: String, password: String, isDone:(Boolean,String?) -> Unit) {
         firebaseClient.login(username,password,isDone)
     }

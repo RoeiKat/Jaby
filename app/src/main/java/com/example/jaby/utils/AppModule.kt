@@ -1,6 +1,7 @@
 package com.example.jaby.utils
 
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import dagger.Module
@@ -19,6 +20,9 @@ class AppModule {
 
     @Provides
     fun provideGson():Gson = Gson()
+
+    @Provides
+    fun provideFirebaseAuthInstance():FirebaseAuth = FirebaseAuth.getInstance()
 
     @Provides
     fun provideDataBaseInstance():FirebaseDatabase = FirebaseDatabase.getInstance()

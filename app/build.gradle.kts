@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation("com.google.dagger:hilt-android:2.53")
     kapt("com.google.dagger:hilt-android-compiler:2.53")
+    implementation("com.google.firebase:firebase-auth")
 
 
     testImplementation(libs.junit)
