@@ -20,10 +20,9 @@ import com.example.jaby.repository.MainRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
-@AndroidEntryPoint
-class LoginActivity : AppCompatActivity() {
-    @Inject
-    private lateinit var mainRepository: MainRepository
+
+@AndroidEntryPoint class LoginActivity : AppCompatActivity() {
+    @Inject lateinit var mainRepository: MainRepository
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityLoginBinding
 
@@ -33,6 +32,29 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportFragmentManager.beginTransaction().replace(R.id.nav_container, EntryFragment()).commit()
+    }
+
+    fun login(username: String, password: String) {
+        mainRepository.login(
+            username,password){
+                isDone, reason ->
+            if(!isDone) {
+                Toast.makeText(this, reason,Toast.LENGTH_SHORT).show()
+            } else {
+                //start moving to our main activity
+            }
+        }
+    }
+    fun signUp(username: String, password: String) {
+        mainRepository.signUp(
+            username,password){
+                isDone, reason ->
+            if(!isDone) {
+                Toast.makeText(this, reason,Toast.LENGTH_SHORT).show()
+            } else {
+                //start moving to our main activity
+            }
+        }
     }
 
 }

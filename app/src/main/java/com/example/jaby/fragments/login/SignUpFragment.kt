@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.Toast
 import com.example.jaby.R
 import com.example.jaby.repository.MainRepository
+import com.example.jaby.ui.login.LoginActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import javax.inject.Inject
@@ -26,6 +27,8 @@ class SignUpFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_sign_up, container, false)
+        val activity  = requireActivity() as LoginActivity
+
         val backBtn: MaterialTextView = view.findViewById(R.id.back_btn)
         val continueBtn: MaterialButton = view.findViewById(R.id.sign_up_btn)
         val googleBtn: MaterialButton = view.findViewById(R.id.google_sign_up_btn)
@@ -43,15 +46,7 @@ class SignUpFragment : Fragment() {
         }
 
         continueBtn.setOnClickListener{
-//            mainRepository.signUp(
-//                usernameET.text.toString(),passwordET.text.toString()){
-//                    isDone, reason ->
-//                if(!isDone) {
-//                    Toast.makeText(requireActivity(), reason, Toast.LENGTH_SHORT).show()
-//                } else {
-//                    //start moving to our main activity
-//                }
-//            }
+            activity.signUp(usernameET.text.toString(),passwordET.text.toString())
         }
 
         return view

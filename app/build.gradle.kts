@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.secrets.gradle)
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -57,12 +59,18 @@ dependencies {
     implementation(libs.androidx.annotation)
 
     implementation(libs.gson)
-    implementation (libs.dagger.hilt.android)
     implementation(libs.firebase.database.ktx)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+    implementation("com.google.dagger:hilt-android:2.53")
+    kapt("com.google.dagger:hilt-android-compiler:2.53")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+kapt {
+    correctErrorTypes = true
 }
