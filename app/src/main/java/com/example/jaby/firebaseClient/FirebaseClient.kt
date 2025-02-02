@@ -11,7 +11,9 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class FirebaseClient @Inject constructor(
     private val dbRef:DatabaseReference,
     private val gson: Gson,
@@ -23,16 +25,22 @@ class FirebaseClient @Inject constructor(
         this.currentUserName = username
     }
 
+    fun signOut() {
+        mAuth.signOut()
+    }
+
     fun signUp(username:String, password: String, done: (Boolean,String?) -> Unit) {
         mAuth.createUserWithEmailAndPassword(username,password).addOnCompleteListener{
             task ->
             if(task.isSuccessful) {
                 val userUID = mAuth.currentUser?.uid.toString()
-                dbRef.child("Users").child(userUID)
-                done(true,null)
+                dbRef.child("Users").child(userUID).setValue(true).addOnCompleteListener{
+                    done(true,null)
+                }.addOnFailureListener{
+                    done(false, it.message)
+                }
             } else {
-                Log.d("Auth", "Created user unsuccessfully")
-                done(false, "Failed to create user")
+                done(false, null)
             }
         }.addOnFailureListener{
             done(false, it.message)
@@ -103,4 +111,8 @@ class FirebaseClient @Inject constructor(
 //            }
 //        })
     }
+//    fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {
+//
+//
+//    }
 }
