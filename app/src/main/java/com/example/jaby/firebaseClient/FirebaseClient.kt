@@ -27,13 +27,15 @@ class FirebaseClient @Inject constructor(
         mAuth.createUserWithEmailAndPassword(username,password).addOnCompleteListener{
             task ->
             if(task.isSuccessful) {
-                Log.d("Auth", "Created user successfully")
-                val user = mAuth.currentUser?.uid
-                Log.d("UID", user.toString())
+                val userUID = mAuth.currentUser?.uid.toString()
+                dbRef.child("Users").child(userUID)
+                done(true,null)
             } else {
                 Log.d("Auth", "Created user unsuccessfully")
-
+                done(false, "Failed to create user")
             }
+        }.addOnFailureListener{
+            done(false, it.message)
         }
 //        dbRef.addListenerForSingleValueEvent(object: ValueEventListener {
 //            override fun onDataChange(snapshot: DataSnapshot) {
@@ -62,32 +64,43 @@ class FirebaseClient @Inject constructor(
     }
 
     fun login(username:String, password: String, done: (Boolean,String?) -> Unit) {
-        dbRef.addListenerForSingleValueEvent(object: ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.hasChild(username)) {
-                    //User exists, check password
-                    val dbPassword = snapshot.child(username).child(FirebaseFieldNames.PASSWORD).value
-                    if(password == dbPassword) {
-                        //password is correct and sign in
-                        dbRef.child(username).child(FirebaseFieldNames.STATUS).setValue(DeviceStatus.ONLINE)
-                            .addOnCompleteListener{
-                                setUserName(username)
-                                done(true,null)
-                            }.addOnFailureListener{
-                                done(false,"${it.message}")
-                            }
-
-                    } else {
-                        //password is wrong notify user
-                        done(false, "Password is wrong")
-                    }
-                } else {
-                    done(false, "User / Password are incorrect")
-                }
+        mAuth.signInWithEmailAndPassword(username,password).addOnCompleteListener{
+                task ->
+            if(task.isSuccessful) {
+                val user = mAuth.currentUser
+                done(true, null)
+            } else {
+                done(false, "Email / Password incorrect")
             }
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
+        }.addOnFailureListener{
+            done(false, it.message)
+        }
+//        dbRef.addListenerForSingleValueEvent(object: ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                if (snapshot.hasChild(username)) {
+//                    //User exists, check password
+//                    val dbPassword = snapshot.child(username).child(FirebaseFieldNames.PASSWORD).value
+//                    if(password == dbPassword) {
+//                        //password is correct and sign in
+//                        dbRef.child(username).child(FirebaseFieldNames.STATUS).setValue(DeviceStatus.ONLINE)
+//                            .addOnCompleteListener{
+//                                setUserName(username)
+//                                done(true,null)
+//                            }.addOnFailureListener{
+//                                done(false,"${it.message}")
+//                            }
+//
+//                    } else {
+//                        //password is wrong notify user
+//                        done(false, "Password is wrong")
+//                    }
+//                } else {
+//                    done(false, "User / Password are incorrect")
+//                }
+//            }
+//            override fun onCancelled(error: DatabaseError) {
+//                TODO("Not yet implemented")
+//            }
+//        })
     }
 }
