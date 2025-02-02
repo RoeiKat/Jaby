@@ -16,11 +16,14 @@ import com.example.jaby.databinding.ActivityLoginBinding
 
 import com.example.jaby.R
 import com.example.jaby.fragments.login.EntryFragment
+import com.example.jaby.repository.MainRepository
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
-
+    @Inject
+    private lateinit var mainRepository: MainRepository
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityLoginBinding
 
@@ -30,14 +33,8 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportFragmentManager.beginTransaction().replace(R.id.nav_container, EntryFragment()).commit()
-        init()
     }
 
-    private fun init() {
-        binding.apply {
-
-        }
-    }
 }
 //        val username = binding.username
 //        val password = binding.password

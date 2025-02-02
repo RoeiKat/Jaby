@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.login.SignUpFragment"
+    tools:context=".fragments.login.SignInFragment"
     android:orientation="vertical">
 
     <TextView
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="@string/create_an_account"
+        android:text="Sign In to your account"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:textSize="30sp"
@@ -38,21 +38,6 @@
         android:layout_marginTop="12dp"
         >
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/sign_in_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/existing_account"
-        android:textSize="14sp"
-        />
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_toEndOf="@id/sign_in_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:text="@string/sign_in"
-        android:textColor="@color/black"
-        />
 
     </RelativeLayout>
 
@@ -65,29 +50,29 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         >
-    <EditText
-        android:id="@+id/username_ET"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:padding="15dp"
-        android:background="#F1F1F1F1"
-        android:hint="@string/email"
-        android:inputType="text"
-        />
-    <EditText
-        android:id="@+id/password_ET"
-        android:layout_width="300dp"
-        android:layout_margin="10dp"
-        android:background="#F1F1F1F1"
-        android:padding="15dp"
-        android:layout_height="wrap_content"
-        android:hint="@string/password"
-        android:inputType="textPassword"
-        />
+        <EditText
+            android:id="@+id/username_ET"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:padding="15dp"
+            android:background="#F1F1F1F1"
+            android:hint="@string/email"
+            android:inputType="text"
+            />
+        <EditText
+            android:id="@+id/password_ET"
+            android:layout_width="300dp"
+            android:layout_margin="10dp"
+            android:background="#F1F1F1F1"
+            android:padding="15dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/sign_up_btn"
+            android:id="@+id/sign_in_btn"
             android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -98,34 +83,24 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/sign_up_alt"
+        android:id="@+id/sign_in_alt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="or sign up with"
+        android:text="or sign in with"
         android:layout_below="@id/form_container"
         android:layout_centerHorizontal="true"
         android:textColor="@color/black"
         android:textStyle="bold"
         />
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/google_sign_up_btn"
+        android:id="@+id/google_sign_in_btn"
         android:layout_width="300dp"
         android:padding="10dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/sign_up_alt"
+        android:layout_below="@id/sign_in_alt"
         android:layout_centerHorizontal="true"
-        android:text="Sign up with google"
+        android:text="Sign In with google"
         android:textAllCaps="false"
         />
-    <TextView
-
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/google_sign_up_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:layout_margin="50dp"
-        android:text="By clicking Continue you agree to Jaby Terms of use and Privacy policy"/>
 
 </RelativeLayout>

@@ -35,8 +35,12 @@ class EntryFragment : Fragment() {
         }
 
         signInBtn.setOnClickListener{
-            TODO()
-//            val fragment = signInFragment()
+            val fragment = SignInFragment()
+            requireActivity().supportFragmentManager.beginTransaction().apply{
+                setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left)
+                replace(R.id.nav_container, fragment)
+                commit()
+            }
         }
 
 

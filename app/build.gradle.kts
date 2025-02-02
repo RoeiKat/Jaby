@@ -52,14 +52,15 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
+
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.annotation)
 
     implementation(libs.gson)
     implementation (libs.dagger.hilt.android)
-
+    implementation(libs.firebase.database.ktx)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

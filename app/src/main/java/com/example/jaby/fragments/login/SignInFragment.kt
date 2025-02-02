@@ -14,7 +14,7 @@ import com.google.android.material.textview.MaterialTextView
 import javax.inject.Inject
 
 
-class SignUpFragment : Fragment() {
+class SignInFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,10 +25,11 @@ class SignUpFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_sign_up, container, false)
+        // Inflate the layout for this fragment
+        val view =  inflater.inflate(R.layout.fragment_sign_in, container, false)
         val backBtn: MaterialTextView = view.findViewById(R.id.back_btn)
-        val continueBtn: MaterialButton = view.findViewById(R.id.sign_up_btn)
-        val googleBtn: MaterialButton = view.findViewById(R.id.google_sign_up_btn)
+        val continueBtn: MaterialButton = view.findViewById(R.id.sign_in_btn)
+        val googleBtn: MaterialButton = view.findViewById(R.id.google_sign_in_btn)
         val usernameET: EditText = view.findViewById(R.id.username_ET)
         val passwordET: EditText = view.findViewById(R.id.password_ET)
 
@@ -36,24 +37,26 @@ class SignUpFragment : Fragment() {
         backBtn.setOnClickListener{
             val fragment = EntryFragment()
             requireActivity().supportFragmentManager.beginTransaction().apply{
-                setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_left, R.anim.exit_to_right)
+                setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right, R.anim.enter_from_left, R.anim.exit_to_right)
                 replace(R.id.nav_container, fragment)
                 commit()
             }
         }
 
         continueBtn.setOnClickListener{
-//            mainRepository.signUp(
+//            mainRepository.login(
 //                usernameET.text.toString(),passwordET.text.toString()){
-//                    isDone, reason ->
-//                if(!isDone) {
-//                    Toast.makeText(requireActivity(), reason, Toast.LENGTH_SHORT).show()
-//                } else {
-//                    //start moving to our main activity
-//                }
+//                isDone, reason ->
+//                    if(!isDone) {
+//                        Toast.makeText(requireActivity(), reason,Toast.LENGTH_SHORT).show()
+//                    } else {
+//                        //start moving to our main activity
+//                    }
 //            }
         }
 
         return view
     }
+
+
 }
