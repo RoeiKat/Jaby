@@ -19,8 +19,16 @@ class MainRepository @Inject constructor(
         firebaseClient.signUp(username,password,isDone)
     }
 
-//    fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {
-//        firebaseClient.observeDevicesStatus(status)
-//    }
+    fun addDevice(deviceName: String, isDone:(Boolean,String?) -> Unit){
+        firebaseClient.addDevice(deviceName, isDone)
+    }
+
+    fun removeDevice(deviceName: String, isDone:(Boolean, String?) -> Unit) {
+        firebaseClient.removeDevice(deviceName, isDone)
+    }
+
+    fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {
+        firebaseClient.observeDevicesStatus(status)
+    }
 
 }

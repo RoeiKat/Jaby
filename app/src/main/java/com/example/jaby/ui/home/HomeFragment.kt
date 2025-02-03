@@ -1,6 +1,7 @@
 package com.example.jaby.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,13 +27,17 @@ class HomeFragment : Fragment() {
             ViewModelProvider(this).get(HomeViewModel::class.java)
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        val view: View = binding.root
 
         val textView: TextView = binding.textHome
         homeViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
-        return root
+        return view
+    }
+
+    fun updateDevices(devicesList : (List<Pair<String,String>>)) {
+        Log.d("BLAHBLAH", "${devicesList[0].first} BLAH ${devicesList[0].second}30")
     }
 
     override fun onDestroyView() {

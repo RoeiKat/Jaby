@@ -1,4 +1,4 @@
-package com.example.jaby.ui.gallery
+package com.example.jaby.ui.home
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

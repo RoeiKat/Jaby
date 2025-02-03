@@ -4,6 +4,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.jaby.utils.DeviceStatus
 import com.example.jaby.utils.FirebaseFieldNames
+import com.example.jaby.utils.MyEventListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -25,27 +26,7 @@ class FirebaseClient @Inject constructor(
         this.currentUserName = username
     }
 
-    fun signOut() {
-        mAuth.signOut()
-    }
-
-    fun signUp(username:String, password: String, done: (Boolean,String?) -> Unit) {
-        mAuth.createUserWithEmailAndPassword(username,password).addOnCompleteListener{
-            task ->
-            if(task.isSuccessful) {
-                val userUID = mAuth.currentUser?.uid.toString()
-                dbRef.child("Users").child(userUID).setValue(true).addOnCompleteListener{
-                    done(true,null)
-                }.addOnFailureListener{
-                    done(false, it.message)
-                }
-            } else {
-                done(false, null)
-            }
-        }.addOnFailureListener{
-            done(false, it.message)
-        }
-//        dbRef.addListenerForSingleValueEvent(object: ValueEventListener {
+    //        dbRef.addListenerForSingleValueEvent(object: ValueEventListener {
 //            override fun onDataChange(snapshot: DataSnapshot) {
 //                if (snapshot.hasChild(username)) {
 //                    //User exists, notify the user
@@ -69,6 +50,93 @@ class FirebaseClient @Inject constructor(
 //                TODO("Not yet implemented")
 //            }
 //        })
+
+    fun removeDevice(deviceName: String, done: (Boolean, String?) -> Unit) {
+        dbRef.addValueEventListener(object: MyEventListener() {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(mAuth.currentUser != null) {
+                    if(snapshot.child(FirebaseFieldNames.USERS).child(mAuth.currentUser!!.uid).child(FirebaseFieldNames.DEVICES).hasChild(deviceName))
+                    {
+                        dbRef.child(FirebaseFieldNames.USERS).child(mAuth.currentUser!!.uid)
+                            .child(FirebaseFieldNames.DEVICES).child(deviceName)
+                            .removeValue()
+                            .addOnCompleteListener{
+                                done(true,null)
+                            }.addOnFailureListener{
+                                done(false,it.message)
+                            }
+
+                    } else {
+                        done(false, "Device doesn't exists")
+                    }
+                } else {
+                    done(false, "Not Authenticated")
+                }
+            }
+        })
+    }
+
+    fun addDevice(deviceName: String, done: (Boolean, String?) -> Unit) {
+        dbRef.addValueEventListener(object: MyEventListener() {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(mAuth.currentUser != null) {
+                    if(snapshot.child(FirebaseFieldNames.USERS).child(mAuth.currentUser!!.uid).child(FirebaseFieldNames.DEVICES).hasChild(deviceName))
+                    {
+                        done(false, "Device already exists")
+                    } else {
+                        dbRef.child(FirebaseFieldNames.USERS).child(mAuth.currentUser!!.uid)
+                            .child(FirebaseFieldNames.DEVICES).child(deviceName)
+                            .child(FirebaseFieldNames.STATUS).setValue(DeviceStatus.ONLINE)
+                            .addOnCompleteListener{
+                                done(true,null)
+                            }.addOnFailureListener{
+                                done(false,it.message)
+                            }
+                    }
+                } else {
+                    done(false, "Not Authenticated")
+                }
+            }
+        })
+    }
+
+    fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {
+        dbRef.addValueEventListener(object : MyEventListener() {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(mAuth.currentUser == null) {
+                    return
+                } else {
+                    val list = snapshot.child(FirebaseFieldNames.USERS).child(mAuth.currentUser!!.uid)
+                        .child(FirebaseFieldNames.DEVICES).children.map {
+                            it.key!! to it.child(FirebaseFieldNames.STATUS).value.toString()
+                        }
+                    status(list)
+                }
+            }
+        })
+    }
+
+    fun signOut() {
+        mAuth.signOut()
+    }
+
+    fun signUp(username:String, password: String, done: (Boolean,String?) -> Unit) {
+        mAuth.createUserWithEmailAndPassword(username,password).addOnCompleteListener{
+            task ->
+            if(task.isSuccessful) {
+                val userUID = mAuth.currentUser?.uid.toString()
+                dbRef.child("Users").child(userUID).setValue(true).addOnCompleteListener{
+                    done(true,null)
+                }.addOnFailureListener{
+                    done(false, it.message)
+                }
+            } else {
+                done(false, null)
+            }
+        }.addOnFailureListener{
+            done(false, it.message)
+        }
+
     }
 
     fun login(username:String, password: String, done: (Boolean,String?) -> Unit) {
