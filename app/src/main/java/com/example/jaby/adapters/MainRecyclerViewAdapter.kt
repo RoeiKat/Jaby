@@ -51,7 +51,7 @@ class MainRecyclerViewAdapter(private val listener: Listener) : RecyclerView.Ada
                     "IN_CALL" -> "In Call"
                     else -> "Unknown Status"
                 }
-                usernameTv.text = device.first
+                deviceNameTv.text = device.first
                 Log.d("ViewHolder", "Binding device: ${device.first}, Status: ${device.second}")
             }
         }
