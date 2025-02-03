@@ -14,6 +14,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.jaby.adapters.MainRecyclerViewAdapter
 import com.example.jaby.databinding.ActivityMainBinding
@@ -28,7 +29,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 
-    private lateinit var homeFragment: HomeFragment
+    private var homeFragment: HomeFragment? = null
 
     @Inject lateinit var mAuth: FirebaseAuth
     @Inject lateinit var mainRepository: MainRepository
@@ -49,7 +50,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.appBarMain.fab.setOnClickListener { view ->
 //            signOut()
-            addDevice()
+            addDevice("TEST 1")
+            addDevice("TEST 2" )
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null)
                 .setAnchorView(R.id.fab).show()
@@ -57,7 +59,6 @@ class MainActivity : AppCompatActivity() {
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main)
 
 
         // Passing each menu ID as a set of Ids because each
@@ -70,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        homeFragment = HomeFragment()
+        homeFragment = getHomeFragment()
 
         init()
     }
@@ -93,38 +94,24 @@ class MainActivity : AppCompatActivity() {
 //        startMyService()
     }
 
+    private fun getHomeFragment(): HomeFragment? {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as? NavHostFragment
+        return navHostFragment?.childFragmentManager?.fragments?.firstOrNull { it is HomeFragment } as? HomeFragment
+    }
+
     private fun subscribeObservers(){
         mainRepository.observeDevicesStatus{
             Log.d(TAG,"subscribeObservers: $it")
-            homeFragment.updateDevices(it)
+            homeFragment?.updateDevices(it)
         }
 
 
     }
 
-//    private fun startMyService() {
-//    }
 
-//    private fun setupRecyclerView() {
-//        mainAdapter = MainRecyclerViewAdapter(this)
-//        val layoutManager = LinearLayoutManager(this)
-//        binding.mainRecyclerView.apply{
-//            setLayoutManager(layoutManager)
-//            adapter = mainAdapter
-//        }
-//    }
-
-//    override fun onVideoCallClicked(deviceName: String) {
-//        TODO("Not yet implemented")
-//    }
-//
-//    override fun onAudioCallClicked(deviceName: String) {
-//        TODO("Not yet implemented")
-//    }
-
-    private fun addDevice() {
+    private fun addDevice(deviceName: String) {
         mainRepository.addDevice(
-            "TEST"){
+            deviceName){
                 isDone, reason ->
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()

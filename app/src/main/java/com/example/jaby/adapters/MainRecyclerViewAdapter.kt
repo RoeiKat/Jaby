@@ -1,38 +1,38 @@
 package com.example.jaby.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.jaby.databinding.ItemMainRecyclerViewBinding
 
-class MainRecyclerViewAdapter(private val listener:Listener): RecyclerView.Adapter<MainRecyclerViewAdapter.MainRecyclerViewHolder>() {
+class MainRecyclerViewAdapter(private val listener: Listener) : RecyclerView.Adapter<MainRecyclerViewAdapter.MainRecyclerViewHolder>() {
 
-    private var devicesList:List<Pair<String,String>>? = null
+    // Using a non-nullable list initialized to empty to avoid null checks
+    private var devicesList: List<Pair<String, String>> = emptyList()
 
-    fun updateList(list:List<Pair<String,String>>) {
-        this.devicesList = list
+    fun updateList(list: List<Pair<String, String>>) {
+        devicesList = list
+        notifyDataSetChanged()
+        Log.d("MainRecyclerViewAdapter", "List updated with size: ${devicesList.size}")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainRecyclerViewHolder {
         val binding = ItemMainRecyclerViewBinding.inflate(
-            LayoutInflater.from(parent.context),parent,false
+            LayoutInflater.from(parent.context), parent, false
         )
         return MainRecyclerViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return devicesList?.size?:0
-    }
+    override fun getItemCount(): Int = devicesList.size
 
     override fun onBindViewHolder(holder: MainRecyclerViewHolder, position: Int) {
-        devicesList?.let { list->{
-            val device = list[position]
-            holder.bind(device,{
-                listener.onVideoCallClicked(it)
-            },{
-                listener.onAudioCallClicked(it)
-            })
-        } }
+        val device = devicesList[position]
+        holder.bind(device, {
+            listener.onVideoCallClicked(it)
+        }, {
+            listener.onAudioCallClicked(it)
+        })
     }
 
     interface Listener {
@@ -40,17 +40,20 @@ class MainRecyclerViewAdapter(private val listener:Listener): RecyclerView.Adapt
         fun onAudioCallClicked(deviceName: String)
     }
 
-    class MainRecyclerViewHolder(private val binding: ItemMainRecyclerViewBinding):
-            RecyclerView.ViewHolder(binding.root){
-                private val context = binding.root.context
+    class MainRecyclerViewHolder(private val binding: ItemMainRecyclerViewBinding) : RecyclerView.ViewHolder(binding.root) {
 
-
-            fun bind(
-                device:Pair<String,String>,
-                videoCallClicked:(String) -> Unit,
-                audioCallClicked:(String) -> Unit
-            ){
-
+        fun bind(device: Pair<String, String>, videoCallClicked: (String) -> Unit, audioCallClicked: (String) -> Unit) {
+            Log.d("ViewAdapter", "binding ${device.first} and ${device.second}")
+            binding.apply {
+                statusTv.text = when (device.second) {
+                    "ONLINE" -> "Online"
+                    "OFFLINE" -> "Offline"
+                    "IN_CALL" -> "In Call"
+                    else -> "Unknown Status"
+                }
+                usernameTv.text = device.first
+                Log.d("ViewHolder", "Binding device: ${device.first}, Status: ${device.second}")
             }
-            }
+        }
+    }
 }
