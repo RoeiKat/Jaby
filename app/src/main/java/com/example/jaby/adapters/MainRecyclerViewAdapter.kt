@@ -14,7 +14,6 @@ class MainRecyclerViewAdapter(private val listener: Listener) : RecyclerView.Ada
     fun updateList(list: List<Pair<String, String>>) {
         devicesList = list
         notifyDataSetChanged()
-        Log.d("MainRecyclerViewAdapter", "List updated with size: ${devicesList.size}")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainRecyclerViewHolder {
@@ -43,7 +42,7 @@ class MainRecyclerViewAdapter(private val listener: Listener) : RecyclerView.Ada
     class MainRecyclerViewHolder(private val binding: ItemMainRecyclerViewBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(device: Pair<String, String>, videoCallClicked: (String) -> Unit, audioCallClicked: (String) -> Unit) {
-            Log.d("ViewAdapter", "binding ${device.first} and ${device.second}")
+//            Log.d("ViewAdapter", "binding ${device.first} and ${device.second}")
             binding.apply {
                 statusTv.text = when (device.second) {
                     "ONLINE" -> "Online"
@@ -52,7 +51,7 @@ class MainRecyclerViewAdapter(private val listener: Listener) : RecyclerView.Ada
                     else -> "Unknown Status"
                 }
                 deviceNameTv.text = device.first
-                Log.d("ViewHolder", "Binding device: ${device.first}, Status: ${device.second}")
+//                Log.d("ViewHolder", "Binding device: ${device.first}, Status: ${device.second}")
             }
         }
     }

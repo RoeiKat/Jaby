@@ -40,19 +40,15 @@ class HomeFragment : Fragment(), MainRecyclerViewAdapter.Listener {
     }
 
     private fun setupRecyclerView() {
-        Log.d("HomeFragment", "Setting up RecyclerView")
         mainAdapter = MainRecyclerViewAdapter(this)
         val layoutManager = LinearLayoutManager(requireContext())
         binding.mainRecyclerView.layoutManager = layoutManager
         binding.mainRecyclerView.adapter = mainAdapter
-        Log.d("HomeFragment", "RecyclerView setup complete")
     }
 
 
     fun updateDevices(devicesList: List<Pair<String, String>>) {
-        Log.d("HomeFragment", "Updating List with ${devicesList[0].first}")
         mainAdapter?.updateList(devicesList)
-        Log.d("Main Adapter", "item count: ${mainAdapter?.itemCount}")
     }
 
     override fun onAudioCallClicked(deviceName: String) {
