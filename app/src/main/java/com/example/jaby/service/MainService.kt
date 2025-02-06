@@ -60,9 +60,9 @@ class MainService: Service(),MainRepository.Listener {
     private fun handleSetupViews(incomingIntent: Intent) {
         val isCaller = incomingIntent.getBooleanExtra("isCaller", false)
         val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall", false)
-        val target = incomingIntent.getStringExtra("target")
+        val device = incomingIntent.getStringExtra("device")
 
-        mainRepository.setTarget(target!!)
+        mainRepository.setTarget(device!!)
         //initialize our widgets and start streaming our video and audio source
         //and get prepared for call
         mainRepository.initLocalSurfaceView(localSurfaceView!!, isVideoCall)
@@ -84,7 +84,7 @@ class MainService: Service(),MainRepository.Listener {
 
             //setup my clients
             mainRepository.listener = this
-            Log.d("GotHERE","GOTHERE")
+            mainRepository.setTarget(device!!)
             mainRepository.initFirebase()
             mainRepository.initWebrtcClient(device!!)
         }

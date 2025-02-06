@@ -57,9 +57,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             // This is when a phone is being used as a monitor
             startMyService()
             MainService.listener = this
-//            mainServiceRepository.setUpViews(isVideoCall,isCaller,device!!,userId!!)
-//                MainService.remoteSurfaceView = remoteView
-//                mainServiceRepository.setUpViews(isVideoCall,isCaller,target!!,userId!!)
         } else {
             Log.d("Device", "$device")
             Log.d("UserId", "$userId")
@@ -80,6 +77,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             MainService.remoteSurfaceView = remoteView
             MainService.localSurfaceView = localView
             mainServiceRepository.setUpViews(isVideoCall,isCaller,device!!,userId!!)
+//            mainServiceRepository.setUpViews(isVideoCall,isCaller,device!!,userId!!)
         }
 
     }
