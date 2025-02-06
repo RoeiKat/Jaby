@@ -32,10 +32,10 @@ class FirebaseClient @Inject constructor(
     }
 
 
-    fun subscribeForLatestEvent(listener:Listener) {
+    fun subscribeForLatestEvent(target:String,listener:Listener) {
         try{
             dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-                .child(FirebaseFieldNames.DEVICES).child("TEST")
+                .child(FirebaseFieldNames.DEVICES).child(target)
                 .child(LATEST_EVENT).addValueEventListener(
                 object: MyEventListener() {
                     override fun onDataChange(snapshot: DataSnapshot) {

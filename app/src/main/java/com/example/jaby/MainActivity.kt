@@ -42,7 +42,7 @@ private const val PERMISSIONS_REQUEST_CODE = 1001
 private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, MainService.Listener {
+class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
     private var homeFragment: HomeFragment? = null
 
@@ -165,7 +165,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
         //2.Set username
         setUserId()
         //3.Start waiting for calls
-        MainService.listener = this
+//        MainService.listener = this
         //4.Start foreground service to listen for negotiations and calls
 //        startMyService()
     }
@@ -173,12 +173,10 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
     override fun onVideoCallClicked(deviceName: String) {
         mainRepository.sendConnectionRequest(deviceName, true) {
             if(it) {
-                //We have to start video call
-                Log.d("MainActivityOnVideoCallClicked", "Got here")
                 //we wanna create an intent to move to call activity
-                startActivity(Intent(this,MonitorActivity::class.java).apply {
+                    startActivity(Intent(this,MonitorActivity::class.java).apply {
                     putExtra("userId",mAuth.currentUser!!.uid)
-                    putExtra("target",deviceName)
+                    putExtra("device",deviceName)
                     putExtra("isVideoCall",true)
                     putExtra("isCaller", true)
                 })
@@ -193,8 +191,8 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
                 //We have to start audio call
                 Log.d("MainActivityOnAudioCallClicked", "Got here")
                 //we wanna create an intent to move to call activity
-                startActivity(Intent(this,MonitorActivity::class.java).apply {
-                    putExtra("target",deviceName)
+                    startActivity(Intent(this,MonitorActivity::class.java).apply {
+                    putExtra("device",deviceName)
 //                    putExtra("isVideoCall",false)
                     putExtra("isVideoCall",true)
                     putExtra("isCaller", true)
@@ -203,14 +201,16 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
         }
     }
 
-    override fun onCallReceived(model: DataModel) {
-//        val isVideoCall = model.type  == DataModelType.StartVideoCall
-            val isVideoCall = true
-            startActivity(Intent(this,MonitorActivity::class.java).apply {
-            putExtra("target",model.sender)
-            putExtra("isVideoCall", isVideoCall)
-            putExtra("isCaller", false)
-        })
+//    override fun onCallReceived(model: DataModel) {
+////        val isVideoCall = model.type  == DataModelType.StartVideoCall
+//            val isVideoCall = true
+//            startActivity(Intent(this,MonitorActivity::class.java).apply {
+//            //Target is going to be the monitor phone
+//                //Sender is going to be the userId
+//            putExtra("target",model.target)
+//            putExtra("isVideoCall", isVideoCall)
+//            putExtra("isCaller", false)
+//        })
 //        runOnUiThread {
 //            binding.apply {
 //                val isVideoCall = model.type  == DataModelType.StartVideoCall
@@ -229,7 +229,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
 //                  }
 //            }
 //        }
-    }
+//    }
 
     private fun getHomeFragment(): HomeFragment? {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as? NavHostFragment
@@ -262,7 +262,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
                 //start moving to our call activity
                 startActivity(Intent(this, MonitorActivity::class.java).apply {
                     putExtra("userId", mAuth.currentUser!!.uid)
-                    putExtra("target", deviceName)
+                    putExtra("device", deviceName)
                     putExtra("isVideoCall", true)
                     putExtra("isCaller", false)
                 })

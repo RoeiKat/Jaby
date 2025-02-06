@@ -53,7 +53,8 @@ class MainRepository @Inject constructor(
     }
 
     fun initFirebase(){
-        firebaseClient.subscribeForLatestEvent(object :FirebaseClient.Listener {
+        Log.d("SubscribeForLatestEvent","Listening for events on ${target}")
+        firebaseClient.subscribeForLatestEvent(target!!,object :FirebaseClient.Listener {
             override fun onLatestEventReceived(event: DataModel) {
                 listener?.onLatestEventReceived(event)
                 when(event.type) {
@@ -115,9 +116,9 @@ class MainRepository @Inject constructor(
         firebaseClient.setCurrentUserId(userId)
     }
 
-    fun initWebrtcClient(username: String) {
+    fun initWebrtcClient(device: String) {
         webRTCClient.listener = this
-        webRTCClient.initalizeWebrtcClient(username, object: MyPeerObserver() {
+        webRTCClient.initalizeWebrtcClient(device, object: MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
                 //notify the creator of this class that there is a new stream available
@@ -157,6 +158,7 @@ class MainRepository @Inject constructor(
     }
 
     fun startCall() {
+        Log.d("StartCall", "Got to start call")
         webRTCClient.call(target!!)
     }
 

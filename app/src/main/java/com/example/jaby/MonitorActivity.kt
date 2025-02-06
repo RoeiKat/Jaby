@@ -23,7 +23,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
 
     private var userId:String?=null
-    private var target:String?=null
+    private var device:String?=null
     private var isVideoCall:Boolean = true
     private var isCaller:Boolean = true
 
@@ -40,8 +40,8 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     }
 
     private fun init() {
-        intent.getStringExtra("target")?.let{
-            this.target = it
+        intent.getStringExtra("device")?.let{
+            this.device = it
         }?: kotlin.run {
             finish()
         }
@@ -53,38 +53,44 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         isVideoCall = intent.getBooleanExtra("isVideoCall",true)
         isCaller = intent.getBooleanExtra("isCaller",true)
 
+        if(!isCaller) {
+            // This is when a phone is being used as a monitor
+            startMyService()
+            MainService.listener = this
+//            mainServiceRepository.setUpViews(isVideoCall,isCaller,device!!,userId!!)
+//                MainService.remoteSurfaceView = remoteView
+//                mainServiceRepository.setUpViews(isVideoCall,isCaller,target!!,userId!!)
+        } else {
+            Log.d("Device", "$device")
+            Log.d("UserId", "$userId")
+            Log.d("isCaller", "$isCaller")
+        }
+
         views.apply {
-            monitorTitleTv.text = "Monitoring on Device $target"
+            monitorTitleTv.text = "Monitoring on Device $device"
             endMonitorButton.setOnClickListener{
                 if(!isCaller){
+                    //From the monitoring device
                     removeDevice()
                 } else {
                     //This is not from the monitoring device so go back to main activity.
                     startActivity(Intent(this@MonitorActivity, MainActivity::class.java))
                 }
             }
-            if(!isCaller) {
-                startMyService()
-                // This is when a phone is being used as a monitor
-//                MainService.remoteSurfaceView = remoteView
-//                mainServiceRepository.setUpViews(isVideoCall,isCaller,target!!,userId!!)
-            } else {
-
-            }
-//            MainService.remoteSurfaceView = remoteView
-//            MainService.localSurfaceView = localView
-//            mainServiceRepository.setUpViews(isVideoCall,isCaller,target!!,userId!!)
+            MainService.remoteSurfaceView = remoteView
+            MainService.localSurfaceView = localView
+            mainServiceRepository.setUpViews(isVideoCall,isCaller,device!!,userId!!)
         }
+
     }
 
     private fun startMyService() {
-        mainServiceRepository.startService(userId!!)
+        mainServiceRepository.startService(device!!)
     }
 
     override fun onCallReceived(model: DataModel) {
-//        val isVideoCall = model.type  == DataModelType.StartVideoCall
         val isVideoCall = true
-
+        Log.d("ReceivedCall", "${model.toString()}")
 //        runOnUiThread {
 //            binding.apply {
 //                val isVideoCall = model.type  == DataModelType.StartVideoCall
@@ -106,7 +112,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     }
 
     private fun removeDevice() {
-        mainRepository.removeDevice(target!!){isDone,reason ->
+        mainRepository.removeDevice(device!!){isDone,reason ->
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {

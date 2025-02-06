@@ -23,7 +23,7 @@ class MainService: Service(),MainRepository.Listener {
     private val TAG = "MainService"
 
     private var isServiceRunning = false
-    private var username: String? = null
+    private var device: String? = null
 
     private lateinit var notificationManager: NotificationManager
 
@@ -69,6 +69,7 @@ class MainService: Service(),MainRepository.Listener {
         mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
         if(!isCaller) {
             //start the video call
+            mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
             mainRepository.startCall()
         }
     }
@@ -77,14 +78,15 @@ class MainService: Service(),MainRepository.Listener {
         //Start our foreground service
         if(!isServiceRunning) {
             isServiceRunning = true
-            username = incomingIntent.getStringExtra("username")
+            device = incomingIntent.getStringExtra("device")
             startServiceWithNotification()
             Log.d("Service", "Main service started")
 
             //setup my clients
             mainRepository.listener = this
+            Log.d("GotHERE","GOTHERE")
             mainRepository.initFirebase()
-            mainRepository.initWebrtcClient(username!!)
+            mainRepository.initWebrtcClient(device!!)
         }
     }
 
@@ -99,8 +101,8 @@ class MainService: Service(),MainRepository.Listener {
             notificationManager.createNotificationChannel(notificationChannel)
             val notification = NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Service Running")
-                .setContentText("Your foreground service is active.")
+                .setContentTitle("Monitoring Service Running")
+                .setContentText("Currently Monitoring on the device.")
                 .setOngoing(true) // Mark as ongoing so it's not dismissible
                 .build()
             startForeground(1, notification)
@@ -110,10 +112,12 @@ class MainService: Service(),MainRepository.Listener {
     override fun onLatestEventReceived(data: DataModel) {
         Log.d(TAG,"onLatestEventReceived: $data")
         if(data.isValid()) {
+            Log.d("DataModelType", "Data is valid")
             when(data.type){
                 DataModelType.StartVideoCall,
                     DataModelType.StartAudioCall -> {
-                        listener?.onCallReceived(data)
+                    Log.d("DataModelType", "Received call ${data.type}")
+                    listener?.onCallReceived(data)
                     }
                 else -> Unit
             }
