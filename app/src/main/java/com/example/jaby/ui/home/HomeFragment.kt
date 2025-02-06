@@ -1,5 +1,6 @@
 package com.example.jaby.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.jaby.MainActivity
+import com.example.jaby.MonitorActivity
 import com.example.jaby.R
 import com.example.jaby.adapters.MainRecyclerViewAdapter
 import com.example.jaby.databinding.FragmentHomeBinding
@@ -52,15 +54,16 @@ class HomeFragment : Fragment(), MainRecyclerViewAdapter.Listener {
     }
 
     override fun onAudioCallClicked(deviceName: String) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onVideoCallClicked(deviceName: String) {
-        TODO("Not yet implemented")
+        (activity as? MainActivity)?.onVideoCallClicked(deviceName)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 }

@@ -174,6 +174,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
         mainRepository.sendConnectionRequest(deviceName, true) {
             if(it) {
                 //We have to start video call
+                Log.d("MainActivityOnVideoCallClicked", "Got here")
                 //we wanna create an intent to move to call activity
                 startActivity(Intent(this,MonitorActivity::class.java).apply {
                     putExtra("userId",mAuth.currentUser!!.uid)
@@ -190,6 +191,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, Main
         mainRepository.sendConnectionRequest(deviceName, false) {
             if(it) {
                 //We have to start audio call
+                Log.d("MainActivityOnAudioCallClicked", "Got here")
                 //we wanna create an intent to move to call activity
                 startActivity(Intent(this,MonitorActivity::class.java).apply {
                     putExtra("target",deviceName)
