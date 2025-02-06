@@ -5,9 +5,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.Menu
+import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -24,9 +27,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.jaby.adapters.MainRecyclerViewAdapter
 import com.example.jaby.databinding.ActivityMainBinding
 import com.example.jaby.repository.MainRepository
+import com.example.jaby.service.MainService
 import com.example.jaby.service.MainServiceRepository
 import com.example.jaby.ui.home.HomeFragment
 import com.example.jaby.ui.login.LoginActivity
+import com.example.jaby.utils.DataModel
+import com.example.jaby.utils.DataModelType
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -36,7 +42,7 @@ private const val PERMISSIONS_REQUEST_CODE = 1001
 private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
+class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener, MainService.Listener {
 
     private var homeFragment: HomeFragment? = null
 
@@ -46,28 +52,52 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
 
     private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var views: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if(mAuth.currentUser == null) signOut()
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        views = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(views.root)
 
-        setSupportActionBar(binding.appBarMain.toolbar)
+        setSupportActionBar(views.appBarMain.toolbar)
 
-        binding.appBarMain.fab.setOnClickListener { view ->
-//            signOut()
-//            addDevice("TEST 1")
-//            addDevice("TEST 2" )
-            onVideoCallClicked("TEST")
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        views.appBarMain.startMonitoringFAB.setOnClickListener { _ ->
+            // Create an AlertDialog Builder
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Enter Device Name")
+
+            // Create an EditText for user input
+            val input = EditText(this)
+            input.hint = "Device Name"
+            input.inputType = InputType.TYPE_CLASS_TEXT
+            builder.setView(input)
+
+            // Set up the positive ("OK") button action
+            builder.setPositiveButton("OK") { dialog, _ ->
+                val deviceName = input.text.toString().trim()
+                if (deviceName.isNotEmpty()) {
+                    addDevice(deviceName)
+                } else {
+                    // Optionally, show a message if the input is empty
+                    Toast.makeText(this, "Please enter a device name.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            // Set up the negative ("Cancel") button action
+            builder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+            // Show the dialog
+            builder.show()
         }
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
+//            onVideoCallClicked("TESTGIT")
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null)
+//                .setAnchorView(R.id.startMonitoringFAB).show()
+        val drawerLayout: DrawerLayout = views.drawerLayout
+        val navView: NavigationView = views.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
 
@@ -132,20 +162,25 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     private fun init() {
         //1.Observe other users status
         subscribeObservers()
-
         //2.Set username
         setUserId()
-
-        //3.Start foreground service to listen for negotiations and calls
-        startMyService()
+        //3.Start waiting for calls
+        MainService.listener = this
+        //4.Start foreground service to listen for negotiations and calls
+//        startMyService()
     }
 
     override fun onVideoCallClicked(deviceName: String) {
         mainRepository.sendConnectionRequest(deviceName, true) {
             if(it) {
                 //We have to start video call
-
                 //we wanna create an intent to move to call activity
+                startActivity(Intent(this,MonitorActivity::class.java).apply {
+                    putExtra("userId",mAuth.currentUser!!.uid)
+                    putExtra("target",deviceName)
+                    putExtra("isVideoCall",true)
+                    putExtra("isCaller", true)
+                })
             }
         }
 
@@ -155,10 +190,43 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
         mainRepository.sendConnectionRequest(deviceName, false) {
             if(it) {
                 //We have to start audio call
-
                 //we wanna create an intent to move to call activity
+                startActivity(Intent(this,MonitorActivity::class.java).apply {
+                    putExtra("target",deviceName)
+//                    putExtra("isVideoCall",false)
+                    putExtra("isVideoCall",true)
+                    putExtra("isCaller", true)
+                })
             }
         }
+    }
+
+    override fun onCallReceived(model: DataModel) {
+//        val isVideoCall = model.type  == DataModelType.StartVideoCall
+            val isVideoCall = true
+            startActivity(Intent(this,MonitorActivity::class.java).apply {
+            putExtra("target",model.sender)
+            putExtra("isVideoCall", isVideoCall)
+            putExtra("isCaller", false)
+        })
+//        runOnUiThread {
+//            binding.apply {
+//                val isVideoCall = model.type  == DataModelType.StartVideoCall
+//                val isVideoCallText = if (isVideoCall) "Video" else "Audio"
+//                incomingCallTitleTv.text = "${model.sender} is ${isVideoCallText} calling you"
+//                incomingCallLayout.isVisible = true
+//                  acceptButton.setOnClickListener {
+//                      geCameraAndMicPermission {
+//                          incomingCallLayout.isVisible = false
+//                          //create an intent to go to video call activity
+//
+//                      }
+//                  }
+//                  declineButton.setOnClickListener {
+//                      incomingCallLayout.isVisible = false
+//                  }
+//            }
+//        }
     }
 
     private fun getHomeFragment(): HomeFragment? {
@@ -177,12 +245,12 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
         mainRepository.setCurrentUserId(mAuth.currentUser!!.uid)
     }
 
-    private fun startMyService() {
-        mainServiceRepository.startService(mAuth.currentUser!!.uid)
-    }
+//    private fun startMyService() {
+//        mainServiceRepository.startService(mAuth.currentUser!!.uid)
+//    }
 
 
-    private fun addDevice(deviceName: String) {
+    private fun addDevice(deviceName: String){
         mainRepository.addDevice(
             deviceName){
                 isDone, reason ->
@@ -190,7 +258,14 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
                 //start moving to our call activity
+                startActivity(Intent(this, MonitorActivity::class.java).apply {
+                    putExtra("userId", mAuth.currentUser!!.uid)
+                    putExtra("target", deviceName)
+                    putExtra("isVideoCall", true)
+                    putExtra("isCaller", false)
+                })
             }
+
         }
     }
 

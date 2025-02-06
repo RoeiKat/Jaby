@@ -19,6 +19,7 @@ annotation = "1.6.0"
 gson = "2.11.0"
 secrets = "2.0.1"
 firebaseDatabaseKtx = "21.0.0"
+activity = "1.10.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,7 @@ androidx-annotation = { group = "androidx.annotation", name = "annotation", vers
 mesibo = { module = "com.mesibo.api:mesibo", version.ref = "mesibo" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 
 [plugins]

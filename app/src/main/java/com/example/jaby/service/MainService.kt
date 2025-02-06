@@ -15,6 +15,7 @@ import com.example.jaby.repository.MainRepository
 import com.example.jaby.utils.DataModel
 import com.example.jaby.utils.DataModelType
 import com.example.jaby.utils.isValid
+import org.webrtc.SurfaceViewRenderer
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -31,6 +32,8 @@ class MainService: Service(),MainRepository.Listener {
 
     companion object {
         var listener:Listener?=null
+        var localSurfaceView: SurfaceViewRenderer? = null
+        var remoteSurfaceView: SurfaceViewRenderer? = null
     }
 
     override fun onCreate() {
@@ -45,6 +48,7 @@ class MainService: Service(),MainRepository.Listener {
         intent?.let{ incomingIntent ->
             when(incomingIntent.action){
                 MainServiceActions.START_SERVICE.name -> handleStartService(incomingIntent)
+                MainServiceActions.SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
                 else -> Unit
 
             }
@@ -53,6 +57,21 @@ class MainService: Service(),MainRepository.Listener {
         return START_STICKY
     }
 
+    private fun handleSetupViews(incomingIntent: Intent) {
+        val isCaller = incomingIntent.getBooleanExtra("isCaller", false)
+        val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall", false)
+        val target = incomingIntent.getStringExtra("target")
+
+        mainRepository.setTarget(target!!)
+        //initialize our widgets and start streaming our video and audio source
+        //and get prepared for call
+        mainRepository.initLocalSurfaceView(localSurfaceView!!, isVideoCall)
+        mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
+        if(!isCaller) {
+            //start the video call
+            mainRepository.startCall()
+        }
+    }
 
     private fun handleStartService(incomingIntent: Intent) {
         //Start our foreground service
@@ -65,6 +84,7 @@ class MainService: Service(),MainRepository.Listener {
             //setup my clients
             mainRepository.listener = this
             mainRepository.initFirebase()
+            mainRepository.initWebrtcClient(username!!)
         }
     }
 
@@ -98,6 +118,10 @@ class MainService: Service(),MainRepository.Listener {
                 else -> Unit
             }
         }
+    }
+
+    override fun endCall() {
+
     }
 
     override fun onBind(intent: Intent?): IBinder? {

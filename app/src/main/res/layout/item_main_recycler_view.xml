@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    android:id="@+id/monitorCard"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,29 +11,50 @@
     app:cardBackgroundColor="@color/green_shade"
     android:layout_margin="8dp">
 
-    <LinearLayout
+    <!-- Use a FrameLayout so we can overlay the icon -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/deviceNameTv"
+        <!-- Your existing content with extra end padding to make room for the icon -->
+        <LinearLayout
+            android:id="@+id/textContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Card Title"
-            android:textSize="18sp"
-            android:textColor="@android:color/white"
-            tools:text="Card Title" />
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:paddingEnd="72dp">  <!-- increased right padding -->
 
-        <TextView
-            android:id="@+id/statusTv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Description text goes here."
-            android:textSize="14sp"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="4dp"
-            tools:text="Description text goes here." />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/deviceNameTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Card Title"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                tools:text="Card Title" />
+
+            <TextView
+                android:id="@+id/statusTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Description text goes here."
+                android:textSize="14sp"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="4dp"
+                tools:text="Description text goes here." />
+        </LinearLayout>
+
+        <!-- The monitor icon, aligned to the right side -->
+        <ImageView
+            android:id="@+id/monitorIcon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_monitor"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="@dimen/fab_margin"
+        />
+    </FrameLayout>
 </androidx.cardview.widget.CardView>

@@ -26,6 +26,7 @@ class FirebaseClient @Inject constructor(
 ) {
     private var currentUserId:String? = null
 
+
     fun setCurrentUserId(userId:String) {
         this.currentUserId = userId
     }
@@ -73,7 +74,7 @@ class FirebaseClient @Inject constructor(
     }
 
     fun removeDevice(deviceName: String, done: (Boolean, String?) -> Unit) {
-        dbRef.addValueEventListener(object: MyEventListener() {
+        dbRef.addListenerForSingleValueEvent(object: MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(mAuth.currentUser != null) {
                     if(snapshot.child(FirebaseFieldNames.USERS).child(currentUserId!!).child(FirebaseFieldNames.DEVICES).hasChild(deviceName))
@@ -98,7 +99,7 @@ class FirebaseClient @Inject constructor(
     }
 
     fun addDevice(deviceName: String, done: (Boolean, String?) -> Unit) {
-        dbRef.addValueEventListener(object: MyEventListener() {
+        dbRef.addListenerForSingleValueEvent(object: MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(mAuth.currentUser != null) {
                     if(snapshot.child(FirebaseFieldNames.USERS).child(currentUserId!!).child(FirebaseFieldNames.DEVICES).hasChild(deviceName))
@@ -153,7 +154,7 @@ class FirebaseClient @Inject constructor(
                     done(false, it.message)
                 }
             } else {
-                done(false, null)
+                done(false, "Something went wrong")
             }
         }.addOnFailureListener{
             done(false, it.message)
@@ -175,8 +176,16 @@ class FirebaseClient @Inject constructor(
             done(false, it.message)
         }
     }
-//    fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {
-//
-//
-//    }
+
+    fun changeDeviceStatus(status: DeviceStatus) {
+        dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
+            .child(FirebaseFieldNames.DEVICES).child("TEST")
+            .child(FirebaseFieldNames.STATUS).setValue(status)
+    }
+
+    fun clearLatestEvent() {
+        dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
+            .child(FirebaseFieldNames.DEVICES).child(FirebaseFieldNames.LATEST_EVENT)
+            .setValue(null)
+    }
 }
