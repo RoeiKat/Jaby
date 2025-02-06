@@ -41,7 +41,6 @@ class MainService: Service(),MainRepository.Listener {
         notificationManager = getSystemService(
             NotificationManager::class.java
         )
-        Log.d("NotificationManager","Initalized")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -62,16 +61,16 @@ class MainService: Service(),MainRepository.Listener {
         val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall", false)
         val device = incomingIntent.getStringExtra("device")
 
-        mainRepository.setTarget(device!!)
+        mainRepository.setDevice(device!!)
         //initialize our widgets and start streaming our video and audio source
         //and get prepared for call
         mainRepository.initLocalSurfaceView(localSurfaceView!!, isVideoCall)
         mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
-        if(!isCaller) {
-            //start the video call
-            mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
+
+        if(isCaller) {
             mainRepository.startCall()
         }
+
     }
 
     private fun handleStartService(incomingIntent: Intent) {
@@ -80,11 +79,9 @@ class MainService: Service(),MainRepository.Listener {
             isServiceRunning = true
             device = incomingIntent.getStringExtra("device")
             startServiceWithNotification()
-            Log.d("Service", "Main service started")
-
             //setup my clients
             mainRepository.listener = this
-            mainRepository.setTarget(device!!)
+            mainRepository.setDevice(device!!)
             mainRepository.initFirebase()
             mainRepository.initWebrtcClient(device!!)
         }
@@ -112,11 +109,9 @@ class MainService: Service(),MainRepository.Listener {
     override fun onLatestEventReceived(data: DataModel) {
         Log.d(TAG,"onLatestEventReceived: $data")
         if(data.isValid()) {
-            Log.d("DataModelType", "Data is valid")
             when(data.type){
                 DataModelType.StartVideoCall,
                     DataModelType.StartAudioCall -> {
-                    Log.d("DataModelType", "Received call ${data.type}")
                     listener?.onCallReceived(data)
                     }
                 else -> Unit

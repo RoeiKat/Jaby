@@ -61,7 +61,7 @@ class FirebaseClient @Inject constructor(
         val convertedMessage = gson.toJson(message.copy(sender = currentUserId))
         dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
             .child(FirebaseFieldNames.DEVICES).child(message.target)
-            .child(LATEST_EVENT).setValue(convertedMessage)
+            .child(FirebaseFieldNames.LATEST_EVENT).setValue(convertedMessage)
             .addOnCompleteListener{
                 success(true)
             }.addOnFailureListener{

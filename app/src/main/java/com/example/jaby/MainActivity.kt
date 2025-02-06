@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     override fun onVideoCallClicked(deviceName: String) {
         mainRepository.sendConnectionRequest(deviceName, true) {
             if(it) {
-                //we wanna create an intent to move to call activity
+                    //we wanna create an intent to move to call activity
                     startActivity(Intent(this,MonitorActivity::class.java).apply {
                     putExtra("userId",mAuth.currentUser!!.uid)
                     putExtra("device",deviceName)
@@ -201,36 +201,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
         }
     }
 
-//    override fun onCallReceived(model: DataModel) {
-////        val isVideoCall = model.type  == DataModelType.StartVideoCall
-//            val isVideoCall = true
-//            startActivity(Intent(this,MonitorActivity::class.java).apply {
-//            //Target is going to be the monitor phone
-//                //Sender is going to be the userId
-//            putExtra("target",model.target)
-//            putExtra("isVideoCall", isVideoCall)
-//            putExtra("isCaller", false)
-//        })
-//        runOnUiThread {
-//            binding.apply {
-//                val isVideoCall = model.type  == DataModelType.StartVideoCall
-//                val isVideoCallText = if (isVideoCall) "Video" else "Audio"
-//                incomingCallTitleTv.text = "${model.sender} is ${isVideoCallText} calling you"
-//                incomingCallLayout.isVisible = true
-//                  acceptButton.setOnClickListener {
-//                      geCameraAndMicPermission {
-//                          incomingCallLayout.isVisible = false
-//                          //create an intent to go to video call activity
-//
-//                      }
-//                  }
-//                  declineButton.setOnClickListener {
-//                      incomingCallLayout.isVisible = false
-//                  }
-//            }
-//        }
-//    }
-
     private fun getHomeFragment(): HomeFragment? {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as? NavHostFragment
         return navHostFragment?.childFragmentManager?.fragments?.firstOrNull { it is HomeFragment } as? HomeFragment
@@ -238,7 +208,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
     private fun subscribeObservers(){
         mainRepository.observeDevicesStatus{
-            Log.d(TAG,"subscribeObservers: $it")
             homeFragment?.updateDevices(it)
         }
     }
@@ -246,10 +215,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     private fun setUserId(){
         mainRepository.setCurrentUserId(mAuth.currentUser!!.uid)
     }
-
-//    private fun startMyService() {
-//        mainServiceRepository.startService(mAuth.currentUser!!.uid)
-//    }
 
 
     private fun addDevice(deviceName: String){

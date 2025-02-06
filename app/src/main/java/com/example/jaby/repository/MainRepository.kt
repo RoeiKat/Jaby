@@ -25,9 +25,10 @@ class MainRepository @Inject constructor(
     private val gson: Gson
 ): WebRTCClient.Listener {
 
-    private var target:String?=null
+    private var device:String?=null
     var listener: Listener? = null
     private var remoteView:SurfaceViewRenderer?=null
+    private var userId:String? = null
 
     fun signOut() {
         firebaseClient.signOut()
@@ -53,8 +54,7 @@ class MainRepository @Inject constructor(
     }
 
     fun initFirebase(){
-        Log.d("SubscribeForLatestEvent","Listening for events on ${target}")
-        firebaseClient.subscribeForLatestEvent(target!!,object :FirebaseClient.Listener {
+        firebaseClient.subscribeForLatestEvent(device!!,object :FirebaseClient.Listener {
             override fun onLatestEventReceived(event: DataModel) {
                 listener?.onLatestEventReceived(event)
                 when(event.type) {
@@ -65,7 +65,7 @@ class MainRepository @Inject constructor(
                                 event.data.toString()
                             )
                         )
-                        webRTCClient.answer(target!!)
+                        webRTCClient.answer(device!!)
                     }
                     DataModelType.Answer-> {
                         webRTCClient.onRemoteSessionReceived(
@@ -94,11 +94,11 @@ class MainRepository @Inject constructor(
         })
     }
 
-    fun sendConnectionRequest(target: String, isVideoCall:Boolean, success : (Boolean) -> Unit) {
+    fun sendConnectionRequest(device: String, isVideoCall:Boolean, success : (Boolean) -> Unit) {
         firebaseClient.sendMessageToOtherClient(
             DataModel(
                 type = if(isVideoCall) DataModelType.StartVideoCall else DataModelType.StartAudioCall,
-                target = target
+                target = device
             ),success
         )
     }
@@ -108,17 +108,19 @@ class MainRepository @Inject constructor(
         fun endCall()
     }
 
-    fun setTarget(target: String) {
-        this.target = target
+    fun setDevice(device: String) {
+        this.device = device
     }
 
+
     fun setCurrentUserId(userId:String) {
+        this.userId = userId
         firebaseClient.setCurrentUserId(userId)
     }
 
     fun initWebrtcClient(device: String) {
         webRTCClient.listener = this
-        webRTCClient.initalizeWebrtcClient(device, object: MyPeerObserver() {
+        webRTCClient.initalizeWebrtcClient(userId!!,device, object: MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
                 //notify the creator of this class that there is a new stream available
@@ -132,7 +134,7 @@ class MainRepository @Inject constructor(
             override fun onIceCandidate(p0: IceCandidate?) {
                 super.onIceCandidate(p0)
                 p0?.let{
-                    webRTCClient.sendIceCandidate(target!!,it)
+                    webRTCClient.sendIceCandidate(device!!,it)
                 }
             }
 
@@ -140,9 +142,9 @@ class MainRepository @Inject constructor(
                 super.onConnectionChange(newState)
                 if(newState == PeerConnection.PeerConnectionState.CONNECTED) {
                     //1.change my status to in call
-                    changeDeviceStatus(DeviceStatus.IN_STREAM)
+//                    changeDeviceStatus(DeviceStatus.IN_STREAM)
                     //2.clear latest event inside my user section in firebase database
-                    firebaseClient.clearLatestEvent()
+//                    firebaseClient.clearLatestEvent()
                 }
             }
         })
@@ -158,8 +160,7 @@ class MainRepository @Inject constructor(
     }
 
     fun startCall() {
-        Log.d("StartCall", "Got to start call")
-        webRTCClient.call(target!!)
+        webRTCClient.call(device!!)
     }
 
     fun endCall(){
@@ -171,7 +172,7 @@ class MainRepository @Inject constructor(
         onTransferEventToSocket(
             DataModel(
                 type = DataModelType.EndCall,
-                target = target!!
+                target = device!!
             )
         )
     }

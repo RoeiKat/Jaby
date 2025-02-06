@@ -1,6 +1,7 @@
 package com.example.jaby.webrtc
 
 import android.content.Context
+import android.util.Log
 import com.example.jaby.utils.DataModel
 import com.example.jaby.utils.DataModelType
 import com.google.gson.Gson
@@ -15,7 +16,8 @@ class WebRTCClient @Inject constructor(
 ) {
     //class variables
     var listener: Listener?=null
-    private lateinit var username: String
+    private lateinit var userId: String
+    private lateinit var deviceName: String
 
     //webrtc variables
     private val eglBaseContext = EglBase.create().eglBaseContext
@@ -70,10 +72,11 @@ class WebRTCClient @Inject constructor(
                 disableEncryption = false
             }).createPeerConnectionFactory()
     }
-    fun initalizeWebrtcClient(username: String, observer:PeerConnection.Observer) {
-        this.username = username
-        localTrackId = "${username}_track"
-        localStreamId = "${username}_stream"
+    fun initalizeWebrtcClient(userId:String,deviceName: String, observer:PeerConnection.Observer) {
+        this.userId = userId
+        this.deviceName = deviceName
+        localTrackId = "${deviceName}_track"
+        localStreamId = "${deviceName}_stream"
         peerConnection = createPeerConnection(observer)
     }
     private fun createPeerConnection(observer: PeerConnection.Observer): PeerConnection? {
@@ -90,7 +93,7 @@ class WebRTCClient @Inject constructor(
                     override fun onSetSuccess() {
                         super.onSetSuccess()
                         listener?.onTransferEventToSocket(DataModel(type = DataModelType.Offer,
-                            sender = username,
+                            sender = userId,
                             target = target,
                             data = desc?.description))
                     }
@@ -107,7 +110,7 @@ class WebRTCClient @Inject constructor(
                         super.onSetSuccess()
                         listener?.onTransferEventToSocket(
                             DataModel(type = DataModelType.Answer,
-                                sender = username,
+                                sender = userId,
                                 target = target,
                                 data = desc?.description)
                         )
@@ -127,7 +130,7 @@ class WebRTCClient @Inject constructor(
         listener?.onTransferEventToSocket(
             DataModel(
                 type = DataModelType.IceCandidates,
-                sender = username,
+                sender = userId,
                 target = target,
                 data = gson.toJson(iceCandidate)
             )

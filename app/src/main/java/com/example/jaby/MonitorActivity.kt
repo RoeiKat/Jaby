@@ -20,8 +20,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MonitorActivity : AppCompatActivity(), MainService.Listener {
     //isCaller = false means that this device is a monitor, isCaller = true means that this is a viewer
-
-
     private var userId:String?=null
     private var device:String?=null
     private var isVideoCall:Boolean = true
@@ -53,16 +51,8 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         isVideoCall = intent.getBooleanExtra("isVideoCall",true)
         isCaller = intent.getBooleanExtra("isCaller",true)
 
-        if(!isCaller) {
-            // This is when a phone is being used as a monitor
-            startMyService()
-            MainService.listener = this
-        } else {
-            Log.d("Device", "$device")
-            Log.d("UserId", "$userId")
-            Log.d("isCaller", "$isCaller")
-        }
-
+        startMyService()
+        MainService.listener = this
         views.apply {
             monitorTitleTv.text = "Monitoring on Device $device"
             endMonitorButton.setOnClickListener{
@@ -76,8 +66,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             }
             MainService.remoteSurfaceView = remoteView
             MainService.localSurfaceView = localView
-            mainServiceRepository.setUpViews(isVideoCall,isCaller,device!!,userId!!)
-//            mainServiceRepository.setUpViews(isVideoCall,isCaller,device!!,userId!!)
+            mainServiceRepository.setUpViews(true,isCaller,device!!,userId!!)
         }
 
     }
@@ -88,7 +77,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
     override fun onCallReceived(model: DataModel) {
         val isVideoCall = true
-        Log.d("ReceivedCall", "${model.toString()}")
+
 //        runOnUiThread {
 //            binding.apply {
 //                val isVideoCall = model.type  == DataModelType.StartVideoCall
