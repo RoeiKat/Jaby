@@ -57,19 +57,19 @@ class MainService: Service(),MainRepository.Listener {
     }
 
     private fun handleSetupViews(incomingIntent: Intent) {
-        val isCaller = incomingIntent.getBooleanExtra("isCaller", false)
-        val isVideoCall = incomingIntent.getBooleanExtra("isVideoCall", false)
+        val userId = incomingIntent.getStringExtra("userId")
         val device = incomingIntent.getStringExtra("device")
+        val isMonitor = incomingIntent.getBooleanExtra("isMonitor", false)
 
         mainRepository.setDevice(device!!)
         //initialize our widgets and start streaming our video and audio source
         //and get prepared for call
-        mainRepository.initLocalSurfaceView(localSurfaceView!!, isVideoCall)
+        mainRepository.initLocalSurfaceView(localSurfaceView!!, isMonitor)
         mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
 
-        if(isCaller) {
-            mainRepository.startCall()
-        }
+//        if(isMonitor) {
+//            mainRepository.startCall()
+//        }
 
     }
 
@@ -83,7 +83,7 @@ class MainService: Service(),MainRepository.Listener {
             mainRepository.listener = this
             mainRepository.setDevice(device!!)
             mainRepository.initFirebase()
-            mainRepository.initWebrtcClient(device!!)
+//            mainRepository.initWebrtcClient(device!!)
         }
     }
 
@@ -107,11 +107,10 @@ class MainService: Service(),MainRepository.Listener {
     }
 
     override fun onLatestEventReceived(data: DataModel) {
-        Log.d(TAG,"onLatestEventReceived: $data")
         if(data.isValid()) {
             when(data.type){
-                DataModelType.StartVideoCall-> {
-                    listener?.onCallReceived(data)
+                DataModelType.StartWatching-> {
+                    listener?.onWatchRequestReceived(data)
                     }
                 else -> Unit
             }
@@ -127,6 +126,6 @@ class MainService: Service(),MainRepository.Listener {
     }
 
     interface Listener {
-        fun onCallReceived(model:DataModel)
+        fun onWatchRequestReceived(model:DataModel)
     }
 }

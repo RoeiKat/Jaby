@@ -22,8 +22,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     //isCaller = false means that this device is a monitor, isCaller = true means that this is a viewer
     private var userId:String?=null
     private var device:String?=null
-    private var isVideoCall:Boolean = true
-    private var isCaller:Boolean = true
+    private var isMonitor:Boolean = false
 
     @Inject lateinit var mainRepository: MainRepository
     @Inject lateinit var mainServiceRepository: MainServiceRepository
@@ -48,36 +47,42 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         }?: kotlin.run {
             finish()
         }
-        isVideoCall = intent.getBooleanExtra("isVideoCall",true)
-        isCaller = intent.getBooleanExtra("isCaller",true)
+        isMonitor = intent.getBooleanExtra("isMonitor",false)
 
-        startMyService()
-        MainService.listener = this
-        views.apply {
-            monitorTitleTv.text = "Monitoring on Device $device"
-            endMonitorButton.setOnClickListener{
-                if(!isCaller){
-                    //From the monitoring device
+        if(isMonitor) {
+            startMyService()
+            MainService.listener = this
+            views.apply {
+                monitorTitleTv.text = "Monitoring on Device $device"
+                endMonitorButton.setOnClickListener{
                     removeDevice()
-                } else {
-                    //This is not from the monitoring device so go back to main activity.
+                }
+                MainService.remoteSurfaceView = remoteView
+                MainService.localSurfaceView = localView
+                mainServiceRepository.setUpViews(device!!,userId!!,isMonitor)
+            }
+        } else {
+            mainRepository.subscribeForUserLatestEvent()
+            views.apply {
+                monitorTitleTv.text = "Monitoring on Device $device"
+                endMonitorButton.setOnClickListener{
                     startActivity(Intent(this@MonitorActivity, MainActivity::class.java))
                 }
+                mainRepository.initLocalSurfaceView(remoteView, isMonitor)
+                mainRepository.initRemoteSurfaceView(localView)
+                mainRepository.startCall(device!!)
             }
-            MainService.remoteSurfaceView = remoteView
-            MainService.localSurfaceView = localView
-            mainServiceRepository.setUpViews(true,isCaller,device!!,userId!!)
         }
+
 
     }
 
     private fun startMyService() {
-        mainServiceRepository.startService(device!!)
+        mainServiceRepository.startService(userId!!,device!!)
     }
 
-    override fun onCallReceived(model: DataModel) {
-        val isVideoCall = true
-
+    override fun onWatchRequestReceived(model: DataModel) {
+        Log.d("WatchReqReceived", "${model.toString()}")
 //        runOnUiThread {
 //            binding.apply {
 //                val isVideoCall = model.type  == DataModelType.StartVideoCall
@@ -88,7 +93,11 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 //                      geCameraAndMicPermission {
 //                          incomingCallLayout.isVisible = false
 //                          //create an intent to go to video call activity
-//
+//                            startActivity(Intent(this@MainActivity,CallActivity::class.java).apply {
+//                            putExtra("target",model.sender)
+//                            putExtra("isVideoCall",isVideoCall)
+//                            putExtra("isCaller",false)
+//                        })
 //                      }
 //                  }
 //                  declineButton.setOnClickListener {

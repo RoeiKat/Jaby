@@ -31,16 +31,13 @@ class MainRecyclerViewAdapter(private val listener:Listener) : RecyclerView.Adap
         devicesList?.let { list->
             val user = list[position]
             holder.bind(user,{
-                listener.onVideoCallClicked(it)
-            },{
-                listener.onAudioCallClicked(it)
+                listener.onStartWatchClicked(it)
             })
         }
     }
 
     interface  Listener {
-        fun onVideoCallClicked(deviceName:String)
-        fun onAudioCallClicked(deviceName:String)
+        fun onStartWatchClicked(deviceName:String)
     }
 
     class MainRecyclerViewHolder(private val binding: ItemMainRecyclerViewBinding):
@@ -49,14 +46,13 @@ class MainRecyclerViewAdapter(private val listener:Listener) : RecyclerView.Adap
 
         fun bind(
             device:Pair<String,String>,
-            videoCallClicked:(String) -> Unit,
-            audioCallClicked:(String)-> Unit
+            startWatchClicked:(String) -> Unit,
         ){
             binding.apply {
                 when (device.second) {
                     "ONLINE" -> {
                         monitorCard.setOnClickListener {
-                            videoCallClicked.invoke(device.first)
+                            startWatchClicked.invoke(device.first)
                         }
                         statusTv.text = "Online"
                     }
@@ -70,9 +66,6 @@ class MainRecyclerViewAdapter(private val listener:Listener) : RecyclerView.Adap
 
                 deviceNameTv.text = device.first
             }
-
-
-
         }
     }
 }

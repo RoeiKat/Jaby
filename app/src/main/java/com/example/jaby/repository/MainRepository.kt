@@ -1,6 +1,7 @@
 package com.example.jaby.repository
 
 import android.bluetooth.BluetoothClass.Device
+import android.provider.ContactsContract.Data
 import android.util.Log
 import com.example.jaby.firebaseClient.FirebaseClient
 import com.example.jaby.utils.DataModel
@@ -53,6 +54,48 @@ class MainRepository @Inject constructor(
         firebaseClient.observeDevicesStatus(status)
     }
 
+    fun subscribeForUserLatestEvent(){
+        firebaseClient.subscribeForUserLatestEvent(object :FirebaseClient.Listener {
+            override fun onLatestEventReceived(event: DataModel) {
+                listener?.onLatestEventReceived(event)
+                when(event.type) {
+                    DataModelType.Offer-> {
+                        webRTCClient.onRemoteSessionReceived(
+                            SessionDescription(
+                                SessionDescription.Type.OFFER,
+                                event.data.toString()
+                            )
+                        )
+                        webRTCClient.answer(device!!)
+                    }
+                    DataModelType.Answer-> {
+                        webRTCClient.onRemoteSessionReceived(
+                            SessionDescription(
+                                SessionDescription.Type.ANSWER,
+                                event.data.toString()
+                            )
+                        )
+                    }
+                    DataModelType.IceCandidates-> {
+                        val candidate: IceCandidate? = try {
+                            gson.fromJson(event.data.toString(),IceCandidate::class.java)
+                        }catch (e:Exception){
+                            null
+                        }
+                        candidate?.let {
+                            webRTCClient.addIceCandidateToPeer(it)
+                        }
+                    }
+                    DataModelType.EndCall-> {
+                        listener?.endCall()
+                    }
+                    else -> Unit
+                }
+            }
+        })
+    }
+
+
     fun initFirebase(){
         firebaseClient.subscribeForLatestEvent(device!!,object :FirebaseClient.Listener {
             override fun onLatestEventReceived(event: DataModel) {
@@ -94,10 +137,10 @@ class MainRepository @Inject constructor(
         })
     }
 
-    fun sendConnectionRequest(device: String, isVideoCall:Boolean, success : (Boolean) -> Unit) {
+    fun sendConnectionRequest(device: String,isMonitor: Boolean, success : (Boolean) -> Unit) {
         firebaseClient.sendMessageToOtherClient(
             DataModel(
-                type = if(isVideoCall) DataModelType.StartVideoCall else DataModelType.StartAudioCall,
+                type = if(isMonitor) DataModelType.StartMonitoring else DataModelType.StartWatching,
                 target = device
             ),success
         )
@@ -120,7 +163,8 @@ class MainRepository @Inject constructor(
 
     fun initWebrtcClient(device: String) {
         webRTCClient.listener = this
-        webRTCClient.initalizeWebrtcClient(userId!!,device, object: MyPeerObserver() {
+
+        webRTCClient.initializeWebrtcClient(userId!!,device, object: MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
 
@@ -134,7 +178,7 @@ class MainRepository @Inject constructor(
             override fun onIceCandidate(p0: IceCandidate?) {
                 super.onIceCandidate(p0)
                 p0?.let{
-                    webRTCClient.sendIceCandidate(device!!,it)
+                    webRTCClient.sendIceCandidate(device,it)
                 }
             }
 
@@ -150,8 +194,8 @@ class MainRepository @Inject constructor(
         })
     }
 
-    fun initLocalSurfaceView(view:SurfaceViewRenderer, isVideoCall: Boolean) {
-        webRTCClient.initLocalSurfaceView(view,isVideoCall)
+    fun initLocalSurfaceView(view:SurfaceViewRenderer, isMonitor: Boolean) {
+        webRTCClient.initLocalSurfaceView(view,isMonitor)
     }
 
     fun initRemoteSurfaceView(view:SurfaceViewRenderer) {
@@ -159,8 +203,8 @@ class MainRepository @Inject constructor(
         this.remoteView = view
     }
 
-    fun startCall() {
-        webRTCClient.call(device!!)
+    fun startCall(deviceName: String) {
+        webRTCClient.call(deviceName)
     }
 
     fun endCall(){

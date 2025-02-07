@@ -27,8 +27,28 @@ class FirebaseClient @Inject constructor(
     private var currentUserId:String? = null
 
 
-    fun setCurrentUserId(userId:String) {
-        this.currentUserId = userId
+    fun subscribeForUserLatestEvent(listener:Listener) {
+        try{
+            dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
+                .child(LATEST_EVENT).addValueEventListener(
+                    object: MyEventListener() {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            super.onDataChange(snapshot)
+                            val event = try {
+                                gson.fromJson(snapshot.value.toString(),DataModel::class.java)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                null
+                            }
+                            event?.let {
+                                listener.onLatestEventReceived(it)
+                            }
+                        }
+                    }
+                )
+        }catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
 
@@ -37,24 +57,29 @@ class FirebaseClient @Inject constructor(
             dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
                 .child(FirebaseFieldNames.DEVICES).child(target)
                 .child(LATEST_EVENT).addValueEventListener(
-                object: MyEventListener() {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        super.onDataChange(snapshot)
-                        val event = try {
-                            gson.fromJson(snapshot.value.toString(),DataModel::class.java)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            null
-                        }
-                        event?.let {
-                            listener.onLatestEventReceived(it)
+                    object: MyEventListener() {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            super.onDataChange(snapshot)
+                            val event = try {
+                                gson.fromJson(snapshot.value.toString(),DataModel::class.java)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                null
+                            }
+                            event?.let {
+                                listener.onLatestEventReceived(it)
+                            }
                         }
                     }
-                }
-            )
+                )
         }catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+
+    fun setCurrentUserId(userId:String) {
+        this.currentUserId = userId
     }
 
     fun sendMessageToOtherClient(message:DataModel, success:(Boolean) -> Unit) {

@@ -72,7 +72,7 @@ class WebRTCClient @Inject constructor(
                 disableEncryption = false
             }).createPeerConnectionFactory()
     }
-    fun initalizeWebrtcClient(userId:String,deviceName: String, observer:PeerConnection.Observer) {
+    fun initializeWebrtcClient(userId:String,deviceName: String, observer:PeerConnection.Observer) {
         this.userId = userId
         this.deviceName = deviceName
         localTrackId = "${deviceName}_track"
@@ -86,6 +86,7 @@ class WebRTCClient @Inject constructor(
 
     //negotiation section
     fun call(target:String) {
+        //Stopped here, continue from configuring this place
         peerConnection?.createOffer(object : MySdpObserver() {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 super.onCreateSuccess(desc)
@@ -102,55 +103,25 @@ class WebRTCClient @Inject constructor(
         },mediaConstraint)
     }
 
-
-    private fun PeerConnection.call(sdpObserver: SdpObserver,target:String){
-        val constraints = MediaConstraints().apply {
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo","true"))
-        }
-        createOffer(object : SdpObserver by sdpObserver {
+    fun answer(target:String) {
+        peerConnection?.createAnswer(object : MySdpObserver() {
             override fun onCreateSuccess(desc: SessionDescription?) {
-                setLocalDescription(object : SdpObserver {
-                    override fun onCreateSuccess(p0: SessionDescription?) {
-
-                    }
-
+                super.onCreateSuccess(desc)
+                peerConnection?.setLocalDescription(object : MySdpObserver() {
                     override fun onSetSuccess() {
-                        listener?.onSendMessageToSocket(
-                            DataModel(type = DataModelType.Offer,
-                                username = username,
+                        super.onSetSuccess()
+                        listener?.onTransferEventToSocket(
+                            DataModel(type = DataModelType.Answer,
+                                sender = userId,
                                 target = target,
                                 data = desc?.description)
                         )
                     }
-
-                    override fun onCreateFailure(p0: String?) {
-                    }
-
-                    override fun onSetFailure(p0: String?) {
-                    }
-
                 },desc)
             }
-        },constraints)
+        },mediaConstraint)
     }
-//    fun answer(target:String) {
-//        peerConnection?.createAnswer(object : MySdpObserver() {
-//            override fun onCreateSuccess(desc: SessionDescription?) {
-//                super.onCreateSuccess(desc)
-//                peerConnection?.setLocalDescription(object : MySdpObserver() {
-//                    override fun onSetSuccess() {
-//                        super.onSetSuccess()
-//                        listener?.onTransferEventToSocket(
-//                            DataModel(type = DataModelType.Answer,
-//                                sender = userId,
-//                                target = target,
-//                                data = desc?.description)
-//                        )
-//                    }
-//                },desc)
-//            }
-//        },mediaConstraint)
-//    }
+
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
         peerConnection?.setRemoteDescription(MySdpObserver(),sessionDescription)
     }
@@ -211,14 +182,14 @@ class WebRTCClient @Inject constructor(
         this.remoteSurfaceView = view
         initSurfaceView(view)
     }
-    fun initLocalSurfaceView(localView: SurfaceViewRenderer,isVideoCall: Boolean) {
+    fun initLocalSurfaceView(localView: SurfaceViewRenderer,isMonitor: Boolean) {
         this.localSurfaceView = localView
         initSurfaceView(localView)
-        startLocalStreaming(localView,isVideoCall)
+        startLocalStreaming(localView,isMonitor)
     }
-    private fun startLocalStreaming(localView: SurfaceViewRenderer, isVideoCall: Boolean) {
+    private fun startLocalStreaming(localView: SurfaceViewRenderer, isMonitor: Boolean) {
         localStream = peerConnectionFactory.createLocalMediaStream(localStreamId)
-        if(isVideoCall) {
+        if(isMonitor) {
             startCapturingCamera(localView)
         }
         localAudioTrack = peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)

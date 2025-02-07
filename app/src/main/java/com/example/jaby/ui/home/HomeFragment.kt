@@ -53,12 +53,9 @@ class HomeFragment : Fragment(), MainRecyclerViewAdapter.Listener {
         mainAdapter?.updateList(devicesList)
     }
 
-    override fun onAudioCallClicked(deviceName: String) {
 
-    }
-
-    override fun onVideoCallClicked(deviceName: String) {
-        (activity as? MainActivity)?.onVideoCallClicked(deviceName)
+    override fun onStartWatchClicked(deviceName: String) {
+        (activity as? MainActivity)?.onStartWatchClicked(deviceName)
     }
 
     override fun onDestroyView() {

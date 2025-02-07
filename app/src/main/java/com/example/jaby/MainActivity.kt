@@ -170,35 +170,19 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 //        startMyService()
     }
 
-    override fun onVideoCallClicked(deviceName: String) {
-        mainRepository.sendConnectionRequest(deviceName, true) {
+    override fun onStartWatchClicked(deviceName: String) {
+        //Not monitor, user wanna watch the monitor stream
+        mainRepository.sendConnectionRequest(deviceName, false) {
             if(it) {
-                    //we wanna create an intent to move to call activity
+                    //we wanna create an intent to move to monitor activity
                     startActivity(Intent(this,MonitorActivity::class.java).apply {
                     putExtra("userId",mAuth.currentUser!!.uid)
                     putExtra("device",deviceName)
-                    putExtra("isVideoCall",true)
-                    putExtra("isCaller", true)
+                    putExtra("isMonitor", false)
                 })
             }
         }
 
-    }
-
-    override fun onAudioCallClicked(deviceName: String) {
-        mainRepository.sendConnectionRequest(deviceName, false) {
-            if(it) {
-                //We have to start audio call
-                Log.d("MainActivityOnAudioCallClicked", "Got here")
-                //we wanna create an intent to move to call activity
-                    startActivity(Intent(this,MonitorActivity::class.java).apply {
-                    putExtra("device",deviceName)
-//                    putExtra("isVideoCall",false)
-                    putExtra("isVideoCall",true)
-                    putExtra("isCaller", true)
-                })
-            }
-        }
     }
 
     private fun getHomeFragment(): HomeFragment? {
@@ -208,6 +192,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
     private fun subscribeObservers(){
         mainRepository.observeDevicesStatus{
+            Log.d(TAG, "subscribeObservers: $it")
             homeFragment?.updateDevices(it)
         }
     }
@@ -224,12 +209,11 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                //start moving to our call activity
+                //start moving to our monitor activity
                 startActivity(Intent(this, MonitorActivity::class.java).apply {
                     putExtra("userId", mAuth.currentUser!!.uid)
                     putExtra("device", deviceName)
-                    putExtra("isVideoCall", true)
-                    putExtra("isCaller", false)
+                    putExtra("isMonitor", true)
                 })
             }
 
