@@ -123,7 +123,7 @@ class MainRepository @Inject constructor(
         webRTCClient.initalizeWebrtcClient(userId!!,device, object: MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
-                //notify the creator of this class that there is a new stream available
+
                 try{
                     p0?.videoTracks?.get(0)?.addSink(remoteView)
                 } catch (e: Exception) {

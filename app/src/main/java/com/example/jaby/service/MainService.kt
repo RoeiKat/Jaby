@@ -110,8 +110,7 @@ class MainService: Service(),MainRepository.Listener {
         Log.d(TAG,"onLatestEventReceived: $data")
         if(data.isValid()) {
             when(data.type){
-                DataModelType.StartVideoCall,
-                    DataModelType.StartAudioCall -> {
+                DataModelType.StartVideoCall-> {
                     listener?.onCallReceived(data)
                     }
                 else -> Unit

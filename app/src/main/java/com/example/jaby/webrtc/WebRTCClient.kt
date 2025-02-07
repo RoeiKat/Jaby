@@ -101,24 +101,56 @@ class WebRTCClient @Inject constructor(
             }
         },mediaConstraint)
     }
-    fun answer(target:String) {
-        peerConnection?.createAnswer(object : MySdpObserver() {
+
+
+    private fun PeerConnection.call(sdpObserver: SdpObserver,target:String){
+        val constraints = MediaConstraints().apply {
+            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo","true"))
+        }
+        createOffer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
-                super.onCreateSuccess(desc)
-                peerConnection?.setLocalDescription(object : MySdpObserver() {
+                setLocalDescription(object : SdpObserver {
+                    override fun onCreateSuccess(p0: SessionDescription?) {
+
+                    }
+
                     override fun onSetSuccess() {
-                        super.onSetSuccess()
-                        listener?.onTransferEventToSocket(
-                            DataModel(type = DataModelType.Answer,
-                                sender = userId,
+                        listener?.onSendMessageToSocket(
+                            DataModel(type = DataModelType.Offer,
+                                username = username,
                                 target = target,
                                 data = desc?.description)
                         )
                     }
+
+                    override fun onCreateFailure(p0: String?) {
+                    }
+
+                    override fun onSetFailure(p0: String?) {
+                    }
+
                 },desc)
             }
-        },mediaConstraint)
+        },constraints)
     }
+//    fun answer(target:String) {
+//        peerConnection?.createAnswer(object : MySdpObserver() {
+//            override fun onCreateSuccess(desc: SessionDescription?) {
+//                super.onCreateSuccess(desc)
+//                peerConnection?.setLocalDescription(object : MySdpObserver() {
+//                    override fun onSetSuccess() {
+//                        super.onSetSuccess()
+//                        listener?.onTransferEventToSocket(
+//                            DataModel(type = DataModelType.Answer,
+//                                sender = userId,
+//                                target = target,
+//                                data = desc?.description)
+//                        )
+//                    }
+//                },desc)
+//            }
+//        },mediaConstraint)
+//    }
     fun onRemoteSessionReceived(sessionDescription: SessionDescription) {
         peerConnection?.setRemoteDescription(MySdpObserver(),sessionDescription)
     }
