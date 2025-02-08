@@ -150,6 +150,10 @@ class MainRepository @Inject constructor(
         )
     }
 
+    override fun onTransferEventToSocket(data: DataModel) {
+        firebaseClient.sendMessageToOtherClient(data){}
+    }
+
     interface Listener {
         fun onLatestEventReceived(data: DataModel)
         fun endCall()
@@ -174,7 +178,7 @@ class MainRepository @Inject constructor(
 
     fun initWebrtcClient(device: String) {
         webRTCClient.listener = this
-        webRTCClient.initializeWebrtcClient(userId!!,device, object: MyPeerObserver() {
+        webRTCClient.initializeWebrtcClient(device, object: MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
 
@@ -247,8 +251,6 @@ class MainRepository @Inject constructor(
         webRTCClient.switchCamera()
     }
 
-    override fun onTransferEventToSocket(data: DataModel) {
-        firebaseClient.sendMessageToOtherClient(data){}
-    }
+
 
 }

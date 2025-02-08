@@ -16,7 +16,7 @@ class WebRTCClient @Inject constructor(
 ) {
     //class variables
     var listener: Listener?=null
-    private lateinit var userId: String
+//    private lateinit var userId: String
     private lateinit var deviceName: String
 
     //webrtc variables
@@ -73,8 +73,7 @@ class WebRTCClient @Inject constructor(
             }).createPeerConnectionFactory()
     }
 
-    fun initializeWebrtcClient(userId:String,deviceName: String, observer:PeerConnection.Observer) {
-        this.userId = userId
+    fun initializeWebrtcClient(deviceName: String, observer:PeerConnection.Observer) {
         this.deviceName = deviceName
         localTrackId = "${deviceName}_track"
         localStreamId = "${deviceName}_stream"
@@ -95,7 +94,7 @@ class WebRTCClient @Inject constructor(
                     override fun onSetSuccess() {
                         super.onSetSuccess()
                         listener?.onTransferEventToSocket(DataModel(type = DataModelType.Offer,
-                            sender = userId,
+                            sender = deviceName,
                             target = target,
                             data = desc?.description))
                     }
@@ -113,7 +112,7 @@ class WebRTCClient @Inject constructor(
                         super.onSetSuccess()
                         listener?.onTransferEventToSocket(
                             DataModel(type = DataModelType.Answer,
-                                sender = userId,
+                                sender = deviceName,
                                 target = target,
                                 data = desc?.description)
                         )
@@ -134,7 +133,7 @@ class WebRTCClient @Inject constructor(
         listener?.onTransferEventToSocket(
             DataModel(
                 type = DataModelType.IceCandidates,
-                sender = userId,
+                sender = deviceName,
                 target = target,
                 data = gson.toJson(iceCandidate)
             )

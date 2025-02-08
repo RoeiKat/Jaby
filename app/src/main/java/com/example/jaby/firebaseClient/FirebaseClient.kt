@@ -122,6 +122,27 @@ class FirebaseClient @Inject constructor(
     }
 
     fun sendMessageToOtherClient(message:DataModel, success:(Boolean) -> Unit) {
+        if(message.sender == watcherId) {
+            val convertedMessage = gson.toJson(message.copy(sender = watcherId))
+            dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
+                .child(FirebaseFieldNames.DEVICES).child(message.target)
+                .child(FirebaseFieldNames.LATEST_EVENT).setValue(convertedMessage)
+                .addOnCompleteListener{
+                    success(true)
+                }.addOnFailureListener{
+                    success(false)
+                }
+        } else {
+            val convertedMessage = gson.toJson(message.copy(sender = currentUserId))
+            dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
+                .child(FirebaseFieldNames.DEVICES).child(message.target)
+                .child(FirebaseFieldNames.LATEST_EVENT).setValue(convertedMessage)
+                .addOnCompleteListener{
+                    success(true)
+                }.addOnFailureListener{
+                    success(false)
+                }
+        }
         val convertedMessage = gson.toJson(message.copy(sender = currentUserId))
         dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
             .child(FirebaseFieldNames.DEVICES).child(message.target)
