@@ -25,7 +25,20 @@ class FirebaseClient @Inject constructor(
     private val mAuth: FirebaseAuth
 ) {
     private var currentUserId:String? = null
+    private var watcherId:String? = null
+    private var currentDevice:String? = null
 
+    fun setCurrentDevice(device: String) {
+        this.currentDevice = device
+    }
+
+    private fun setCurrentWatcherId(watcherId: String) {
+        this.watcherId = watcherId
+    }
+
+    fun getCurrentWatcherId():String{
+        return this.watcherId!!
+    }
 
     fun subscribeForUserLatestEvent(listener:Listener) {
         try{
@@ -51,6 +64,32 @@ class FirebaseClient @Inject constructor(
         }
     }
 
+    fun addWatcher(
+        device: String,
+        done: (Boolean, String?) -> Unit
+    ) {
+        val watchersRef = dbRef
+            .child(FirebaseFieldNames.USERS)
+            .child(currentUserId!!)
+            .child(FirebaseFieldNames.WATCHERS)
+
+        watchersRef.addListenerForSingleValueEvent(object : MyEventListener() {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val count = snapshot.childrenCount
+                val newWatcherId = "watcher${count + 1}"
+                setCurrentWatcherId(newWatcherId)
+                val watcherData = mapOf(
+                    "watcher" to newWatcherId,
+                    "deviceName" to device,
+                    "timeStamp" to System.currentTimeMillis()
+                )
+                watchersRef.child(newWatcherId)
+                    .setValue(watcherData)
+                    .addOnCompleteListener { done(true, null) }
+                    .addOnFailureListener { done(false, it.message) }
+            }
+        })
+    }
 
     fun subscribeForLatestEvent(target:String,listener:Listener) {
         try{

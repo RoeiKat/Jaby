@@ -72,6 +72,7 @@ class WebRTCClient @Inject constructor(
                 disableEncryption = false
             }).createPeerConnectionFactory()
     }
+
     fun initializeWebrtcClient(userId:String,deviceName: String, observer:PeerConnection.Observer) {
         this.userId = userId
         this.deviceName = deviceName

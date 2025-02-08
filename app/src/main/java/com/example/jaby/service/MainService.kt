@@ -83,7 +83,7 @@ class MainService: Service(),MainRepository.Listener {
             mainRepository.listener = this
             mainRepository.setDevice(device!!)
             mainRepository.initFirebase()
-//            mainRepository.initWebrtcClient(device!!)
+            mainRepository.initWebrtcClient(device!!)
         }
     }
 

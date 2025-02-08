@@ -22,6 +22,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     //isCaller = false means that this device is a monitor, isCaller = true means that this is a viewer
     private var userId:String?=null
     private var device:String?=null
+    private var watcherId:String?=null
     private var isMonitor:Boolean = false
 
     @Inject lateinit var mainRepository: MainRepository
@@ -62,7 +63,9 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
                 mainServiceRepository.setUpViews(device!!,userId!!,isMonitor)
             }
         } else {
-            mainRepository.subscribeForUserLatestEvent()
+            watcherId = mainRepository.getCurrentWatcherId()
+            mainRepository.setFirebaseCurrentDevice(device!!)
+            mainRepository.initWebrtcClient(watcherId!!)
             views.apply {
                 monitorTitleTv.text = "Monitoring on Device $device"
                 endMonitorButton.setOnClickListener{
@@ -83,28 +86,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
     override fun onWatchRequestReceived(model: DataModel) {
         Log.d("WatchReqReceived", "${model.toString()}")
-//        runOnUiThread {
-//            binding.apply {
-//                val isVideoCall = model.type  == DataModelType.StartVideoCall
-//                val isVideoCallText = if (isVideoCall) "Video" else "Audio"
-//                incomingCallTitleTv.text = "${model.sender} is ${isVideoCallText} calling you"
-//                incomingCallLayout.isVisible = true
-//                  acceptButton.setOnClickListener {
-//                      geCameraAndMicPermission {
-//                          incomingCallLayout.isVisible = false
-//                          //create an intent to go to video call activity
-//                            startActivity(Intent(this@MainActivity,CallActivity::class.java).apply {
-//                            putExtra("target",model.sender)
-//                            putExtra("isVideoCall",isVideoCall)
-//                            putExtra("isCaller",false)
-//                        })
-//                      }
-//                  }
-//                  declineButton.setOnClickListener {
-//                      incomingCallLayout.isVisible = false
-//                  }
-//            }
-//        }
+
     }
 
     private fun removeDevice() {

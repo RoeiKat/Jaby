@@ -54,6 +54,10 @@ class MainRepository @Inject constructor(
         firebaseClient.observeDevicesStatus(status)
     }
 
+    fun addWatcher(deviceName:String, isDone:(Boolean,String?) -> Unit) {
+        firebaseClient.addWatcher(deviceName,isDone)
+    }
+
     fun subscribeForUserLatestEvent(){
         firebaseClient.subscribeForUserLatestEvent(object :FirebaseClient.Listener {
             override fun onLatestEventReceived(event: DataModel) {
@@ -137,11 +141,11 @@ class MainRepository @Inject constructor(
         })
     }
 
-    fun sendConnectionRequest(device: String,isMonitor: Boolean, success : (Boolean) -> Unit) {
+    fun sendConnectionRequest(deviceName: String,isMonitor: Boolean, success : (Boolean) -> Unit) {
         firebaseClient.sendMessageToOtherClient(
             DataModel(
                 type = if(isMonitor) DataModelType.StartMonitoring else DataModelType.StartWatching,
-                target = device
+                target = deviceName
             ),success
         )
     }
@@ -155,15 +159,21 @@ class MainRepository @Inject constructor(
         this.device = device
     }
 
+    fun setFirebaseCurrentDevice(device:String) {
+        firebaseClient.setCurrentDevice(device)
+    }
 
     fun setCurrentUserId(userId:String) {
         this.userId = userId
         firebaseClient.setCurrentUserId(userId)
     }
 
+    fun getCurrentWatcherId(): String {
+        return firebaseClient.getCurrentWatcherId()
+    }
+
     fun initWebrtcClient(device: String) {
         webRTCClient.listener = this
-
         webRTCClient.initializeWebrtcClient(userId!!,device, object: MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)

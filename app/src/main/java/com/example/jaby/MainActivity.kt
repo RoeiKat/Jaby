@@ -92,10 +92,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             // Show the dialog
             builder.show()
         }
-//            onVideoCallClicked("TESTGIT")
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null)
-//                .setAnchorView(R.id.startMonitoringFAB).show()
         val drawerLayout: DrawerLayout = views.drawerLayout
         val navView: NavigationView = views.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -171,18 +167,21 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     }
 
     override fun onStartWatchClicked(deviceName: String) {
-        //Not monitor, user wanna watch the monitor stream
-        mainRepository.sendConnectionRequest(deviceName, false) {
-            if(it) {
-                    //we wanna create an intent to move to monitor activity
-                    startActivity(Intent(this,MonitorActivity::class.java).apply {
-                    putExtra("userId",mAuth.currentUser!!.uid)
-                    putExtra("device",deviceName)
-                    putExtra("isMonitor", false)
-                })
+        mainRepository.addWatcher(deviceName) { done, msg ->
+            if (done) {
+                mainRepository.sendConnectionRequest(deviceName, false) {
+                    if (it) {
+                        startActivity(Intent(this, MonitorActivity::class.java).apply {
+                            putExtra("userId", mAuth.currentUser!!.uid)
+                            putExtra("device", deviceName)
+                            putExtra("isMonitor", false)
+                        })
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Failed to add watcher: $msg", Toast.LENGTH_SHORT).show()
             }
         }
-
     }
 
     private fun getHomeFragment(): HomeFragment? {
