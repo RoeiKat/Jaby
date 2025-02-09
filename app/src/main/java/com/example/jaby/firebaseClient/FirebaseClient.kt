@@ -7,7 +7,6 @@ import com.example.jaby.utils.DataModel
 import com.example.jaby.utils.DataModelType
 import com.example.jaby.utils.DeviceStatus
 import com.example.jaby.utils.FirebaseFieldNames
-import com.example.jaby.utils.FirebaseFieldNames.LATEST_EVENT
 import com.example.jaby.utils.MyEventListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -25,43 +24,45 @@ class FirebaseClient @Inject constructor(
     private val mAuth: FirebaseAuth
 ) {
     private var currentUserId:String? = null
-    private var watcherId:String? = null
     private var currentDevice:String? = null
+    private var isMonitor:Boolean = false
 
-    fun setCurrentDevice(device: String) {
+    fun setIsMonitor(isMonitor:Boolean) {
+        this.isMonitor = isMonitor
+    }
+
+    fun setCurrentDevice(device: String?) {
         this.currentDevice = device
     }
 
-    private fun setCurrentWatcherId(watcherId: String) {
-        this.watcherId = watcherId
+    fun getCurrentDevice():String{
+        return this.currentDevice!!
     }
 
-    fun getCurrentWatcherId():String{
-        return this.watcherId!!
+    fun resetFirebaseClient() {
+        this.currentDevice = null
+        this.isMonitor = false
     }
 
-    fun subscribeForUserLatestEvent(listener:Listener) {
-        try{
-            dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-                .child(LATEST_EVENT).addValueEventListener(
-                    object: MyEventListener() {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            super.onDataChange(snapshot)
-                            val event = try {
-                                gson.fromJson(snapshot.value.toString(),DataModel::class.java)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                null
-                            }
-                            event?.let {
-                                listener.onLatestEventReceived(it)
-                            }
-                        }
+    fun removeWatcher(done: (Boolean,String?)-> Unit) {
+        val watchersRef = dbRef
+            .child(FirebaseFieldNames.USERS)
+            .child(currentUserId!!)
+            .child(FirebaseFieldNames.WATCHERS)
+
+        watchersRef.addListenerForSingleValueEvent(object : MyEventListener() {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                watchersRef.child(currentDevice!!)
+                    .removeValue()
+                    .addOnCompleteListener{
+                        setIsMonitor(false)
+                        done(true,null)
                     }
-                )
-        }catch (e: Exception) {
-            e.printStackTrace()
-        }
+                    .addOnFailureListener{
+                        done(false,it.message)
+                    }
+            }
+        })
     }
 
     fun addWatcher(
@@ -77,7 +78,9 @@ class FirebaseClient @Inject constructor(
             override fun onDataChange(snapshot: DataSnapshot) {
                 val count = snapshot.childrenCount
                 val newWatcherId = "watcher${count + 1}"
-                setCurrentWatcherId(newWatcherId)
+
+                setCurrentDevice(newWatcherId)
+
                 val watcherData = mapOf(
                     "watcher" to newWatcherId,
                     "deviceName" to device,
@@ -85,17 +88,20 @@ class FirebaseClient @Inject constructor(
                 )
                 watchersRef.child(newWatcherId)
                     .setValue(watcherData)
-                    .addOnCompleteListener { done(true, null) }
+                    .addOnCompleteListener {
+                        watchersRef.child(newWatcherId).onDisconnect().removeValue().addOnCompleteListener{}.addOnFailureListener{}
+                        done(true, null) }
                     .addOnFailureListener { done(false, it.message) }
             }
         })
     }
 
-    fun subscribeForLatestEvent(target:String,listener:Listener) {
+    fun subscribeForLatestEvent(listener:Listener) {
+        val field = if(isMonitor) FirebaseFieldNames.DEVICES else FirebaseFieldNames.WATCHERS
         try{
             dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-                .child(FirebaseFieldNames.DEVICES).child(target)
-                .child(LATEST_EVENT).addValueEventListener(
+                .child(field).child(currentDevice!!)
+                .child(FirebaseFieldNames.LATEST_EVENT).addValueEventListener(
                     object: MyEventListener() {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             super.onDataChange(snapshot)
@@ -122,30 +128,13 @@ class FirebaseClient @Inject constructor(
     }
 
     fun sendMessageToOtherClient(message:DataModel, success:(Boolean) -> Unit) {
-        if(message.sender == watcherId) {
-            val convertedMessage = gson.toJson(message.copy(sender = watcherId))
-            dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-                .child(FirebaseFieldNames.DEVICES).child(message.target)
-                .child(FirebaseFieldNames.LATEST_EVENT).setValue(convertedMessage)
-                .addOnCompleteListener{
-                    success(true)
-                }.addOnFailureListener{
-                    success(false)
-                }
-        } else {
-            val convertedMessage = gson.toJson(message.copy(sender = currentUserId))
-            dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-                .child(FirebaseFieldNames.DEVICES).child(message.target)
-                .child(FirebaseFieldNames.LATEST_EVENT).setValue(convertedMessage)
-                .addOnCompleteListener{
-                    success(true)
-                }.addOnFailureListener{
-                    success(false)
-                }
+        if(message.target == currentDevice) {
+            return
         }
-        val convertedMessage = gson.toJson(message.copy(sender = currentUserId))
+        val field = if(isMonitor) FirebaseFieldNames.WATCHERS else FirebaseFieldNames.DEVICES
+        val convertedMessage = gson.toJson(message.copy(sender = currentDevice))
         dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-            .child(FirebaseFieldNames.DEVICES).child(message.target)
+            .child(field).child(message.target)
             .child(FirebaseFieldNames.LATEST_EVENT).setValue(convertedMessage)
             .addOnCompleteListener{
                 success(true)
@@ -195,6 +184,9 @@ class FirebaseClient @Inject constructor(
                             .child(FirebaseFieldNames.DEVICES).child(deviceName)
                             .child(FirebaseFieldNames.STATUS).setValue(DeviceStatus.ONLINE)
                             .addOnCompleteListener{
+                                setCurrentDevice(deviceName)
+                                dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
+                                    .child(FirebaseFieldNames.DEVICES).child(deviceName).onDisconnect().removeValue()
                                 done(true,null)
                             }.addOnFailureListener{
                                 done(false,it.message)
@@ -269,8 +261,10 @@ class FirebaseClient @Inject constructor(
     }
 
     fun clearLatestEvent() {
+        val field = if(isMonitor) FirebaseFieldNames.DEVICES else FirebaseFieldNames.WATCHERS
         dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-            .child(FirebaseFieldNames.DEVICES).child(FirebaseFieldNames.LATEST_EVENT)
+            .child(field).child(currentDevice!!)
+            .child(FirebaseFieldNames.LATEST_EVENT)
             .setValue(null)
     }
 }

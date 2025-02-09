@@ -29,6 +29,17 @@ class MainServiceRepository @Inject constructor(
         }
     }
 
+    fun endService() {
+        val stopIntent = Intent(context, MainService::class.java).apply {
+            action = MainServiceActions.STOP_SERVICE.name
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(stopIntent)
+        } else {
+            context.startService(stopIntent)
+        }
+    }
+
     fun setUpViews(device: String, userId:String,isMonitor: Boolean){
         val intent = Intent(context,MainService::class.java)
         intent.apply {
@@ -37,6 +48,12 @@ class MainServiceRepository @Inject constructor(
             putExtra("device",device)
             putExtra("isMonitor", isMonitor)
         }
+        startServiceIntent(intent)
+    }
+
+    fun sendEndMonitoring() {
+        val intent = Intent(context,MainService::class.java)
+        intent.action = MainServiceActions.END_MONITORING.name
         startServiceIntent(intent)
     }
 

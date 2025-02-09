@@ -3,7 +3,7 @@ package com.example.jaby.utils
 private const val VALID_TIME = 60000
 
 enum class DataModelType {
-    StartMonitoring,StartWatching,Offer,Answer,IceCandidates,EndCall
+    StartWatching,Offer,Answer,IceCandidates,EndMonitoring,EndWatching
 }
 
 data class DataModel (

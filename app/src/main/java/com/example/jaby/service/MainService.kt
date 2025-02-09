@@ -23,7 +23,7 @@ class MainService: Service(),MainRepository.Listener {
     private val TAG = "MainService"
 
     private var isServiceRunning = false
-    private var device: String? = null
+    private var monitorDevice: String? = null
 
     private lateinit var notificationManager: NotificationManager
 
@@ -48,6 +48,8 @@ class MainService: Service(),MainRepository.Listener {
             when(incomingIntent.action){
                 MainServiceActions.START_SERVICE.name -> handleStartService(incomingIntent)
                 MainServiceActions.SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
+                MainServiceActions.STOP_SERVICE.name -> handleStopService()
+                MainServiceActions.END_MONITORING.name -> handleEndMonitoring()
                 else -> Unit
 
             }
@@ -56,39 +58,48 @@ class MainService: Service(),MainRepository.Listener {
         return START_STICKY
     }
 
-    private fun handleSetupViews(incomingIntent: Intent) {
-        val userId = incomingIntent.getStringExtra("userId")
-        val device = incomingIntent.getStringExtra("device")
-        val isMonitor = incomingIntent.getBooleanExtra("isMonitor", false)
+    private fun handleEndMonitoring() {
+        //1. we have to send a signal to other peer that call is ended
+        mainRepository.sendEndMonitoring()
+        //2.end out call process and restart our webrtc client
+        endMonitoringAndRestartRepository()
+    }
 
-        mainRepository.setDevice(device!!)
-        //initialize our widgets and start streaming our video and audio source
-        //and get prepared for call
+    private fun endMonitoringAndRestartRepository() {
+        mainRepository.closeWebRTCConnection()
+        mainRepository.resetRepositoryAndFirebase()
+        mainRepository.initWebrtcClient("null")
+    }
+
+    private fun handleSetupViews(incomingIntent: Intent) {
+//        val userId = incomingIntent.getStringExtra("userId")
+//        val monitorDevice = incomingIntent.getStringExtra("device")
+        val isMonitor = incomingIntent.getBooleanExtra("isMonitor", false)
         mainRepository.initLocalSurfaceView(localSurfaceView!!, isMonitor)
         mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
+    }
 
-//        if(isMonitor) {
-//            mainRepository.startCall()
-//        }
-
+    private fun handleStopService() {
+        isServiceRunning = false
+        stopForeground(true)
+        stopSelf()
     }
 
     private fun handleStartService(incomingIntent: Intent) {
         //Start our foreground service
         if(!isServiceRunning) {
             isServiceRunning = true
-            device = incomingIntent.getStringExtra("device")
+            monitorDevice = incomingIntent.getStringExtra("device")
             startServiceWithNotification()
             //setup my clients
             mainRepository.listener = this
-            mainRepository.setDevice(device!!)
             mainRepository.initFirebase()
-            mainRepository.initWebrtcClient(device!!)
+            mainRepository.initWebrtcClient(monitorDevice!!)
         }
     }
 
     private fun startServiceWithNotification(){
-        val channelId = "foreground_channel_v2" // Changed channel id
+        val channelId = "foreground_channel_v2"
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
                 channelId,
@@ -100,7 +111,7 @@ class MainService: Service(),MainRepository.Listener {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Monitoring Service Running")
                 .setContentText("Currently Monitoring on the device.")
-                .setOngoing(true) // Mark as ongoing so it's not dismissible
+                .setOngoing(true)
                 .build()
             startForeground(1, notification)
         }
@@ -115,10 +126,6 @@ class MainService: Service(),MainRepository.Listener {
                 else -> Unit
             }
         }
-    }
-
-    override fun endCall() {
-
     }
 
     override fun onBind(intent: Intent?): IBinder? {

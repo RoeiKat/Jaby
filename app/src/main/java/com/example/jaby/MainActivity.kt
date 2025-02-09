@@ -169,7 +169,12 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     override fun onStartWatchClicked(deviceName: String) {
         mainRepository.addWatcher(deviceName) { done, msg ->
             if (done) {
-                mainRepository.sendConnectionRequest(deviceName, false) {
+                val currentDevice = mainRepository.getCurrentDevice()
+                mainRepository.setIsMonitor(false)
+                mainRepository.initFirebase()
+                mainRepository.setTarget(deviceName)
+                mainRepository.initWebrtcClient(currentDevice)
+                mainRepository.sendConnectionRequest(deviceName) {
                     if (it) {
                         startActivity(Intent(this, MonitorActivity::class.java).apply {
                             putExtra("userId", mAuth.currentUser!!.uid)
@@ -209,6 +214,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
                 //start moving to our monitor activity
+                mainRepository.setIsMonitor(true)
                 startActivity(Intent(this, MonitorActivity::class.java).apply {
                     putExtra("userId", mAuth.currentUser!!.uid)
                     putExtra("device", deviceName)

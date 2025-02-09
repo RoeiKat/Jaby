@@ -18,6 +18,7 @@ import org.webrtc.SurfaceViewRenderer
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.log
 
 @Singleton
 class MainRepository @Inject constructor(
@@ -26,10 +27,21 @@ class MainRepository @Inject constructor(
     private val gson: Gson
 ): WebRTCClient.Listener {
 
-    private var device:String?=null
     var listener: Listener? = null
-    private var remoteView:SurfaceViewRenderer?=null
+
     private var userId:String? = null
+    private var target:String? = null
+
+    private var remoteView:SurfaceViewRenderer?=null
+
+    fun setIsMonitor(isMonitor: Boolean) {
+        firebaseClient.setIsMonitor(isMonitor)
+    }
+
+    fun getCurrentDevice():String {
+        return firebaseClient.getCurrentDevice()
+    }
+
 
     fun signOut() {
         firebaseClient.signOut()
@@ -48,6 +60,7 @@ class MainRepository @Inject constructor(
 
     fun removeDevice(deviceName: String, isDone:(Boolean, String?) -> Unit) {
         firebaseClient.removeDevice(deviceName, isDone)
+        resetTarget()
     }
 
     fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {
@@ -58,51 +71,15 @@ class MainRepository @Inject constructor(
         firebaseClient.addWatcher(deviceName,isDone)
     }
 
-    fun subscribeForUserLatestEvent(){
-        firebaseClient.subscribeForUserLatestEvent(object :FirebaseClient.Listener {
-            override fun onLatestEventReceived(event: DataModel) {
-                listener?.onLatestEventReceived(event)
-                when(event.type) {
-                    DataModelType.Offer-> {
-                        webRTCClient.onRemoteSessionReceived(
-                            SessionDescription(
-                                SessionDescription.Type.OFFER,
-                                event.data.toString()
-                            )
-                        )
-                        webRTCClient.answer(device!!)
-                    }
-                    DataModelType.Answer-> {
-                        webRTCClient.onRemoteSessionReceived(
-                            SessionDescription(
-                                SessionDescription.Type.ANSWER,
-                                event.data.toString()
-                            )
-                        )
-                    }
-                    DataModelType.IceCandidates-> {
-                        val candidate: IceCandidate? = try {
-                            gson.fromJson(event.data.toString(),IceCandidate::class.java)
-                        }catch (e:Exception){
-                            null
-                        }
-                        candidate?.let {
-                            webRTCClient.addIceCandidateToPeer(it)
-                        }
-                    }
-                    DataModelType.EndCall-> {
-                        listener?.endCall()
-                    }
-                    else -> Unit
-                }
-            }
-        })
+    fun removeWatcher(isDone:(Boolean,String?)->Unit){
+        firebaseClient.removeWatcher(isDone)
+        resetTarget()
     }
-
 
     fun initFirebase(){
-        firebaseClient.subscribeForLatestEvent(device!!,object :FirebaseClient.Listener {
+        firebaseClient.subscribeForLatestEvent(object :FirebaseClient.Listener {
             override fun onLatestEventReceived(event: DataModel) {
+                setTarget(event.sender!!)
                 listener?.onLatestEventReceived(event)
                 when(event.type) {
                     DataModelType.Offer-> {
@@ -112,7 +89,7 @@ class MainRepository @Inject constructor(
                                 event.data.toString()
                             )
                         )
-                        webRTCClient.answer(device!!)
+                        webRTCClient.answer(target!!)
                     }
                     DataModelType.Answer-> {
                         webRTCClient.onRemoteSessionReceived(
@@ -123,17 +100,19 @@ class MainRepository @Inject constructor(
                         )
                     }
                     DataModelType.IceCandidates-> {
+                        Log.d("GOTHER",event.data.toString())
                         val candidate: IceCandidate? = try {
                             gson.fromJson(event.data.toString(),IceCandidate::class.java)
                         }catch (e:Exception){
                             null
                         }
                         candidate?.let {
+                            Log.d("GOTHER",it.toString())
                             webRTCClient.addIceCandidateToPeer(it)
                         }
                     }
-                    DataModelType.EndCall-> {
-                        listener?.endCall()
+                    DataModelType.EndWatching -> {
+                        resetTarget()
                     }
                     else -> Unit
                 }
@@ -141,13 +120,15 @@ class MainRepository @Inject constructor(
         })
     }
 
-    fun sendConnectionRequest(deviceName: String,isMonitor: Boolean, success : (Boolean) -> Unit) {
-        firebaseClient.sendMessageToOtherClient(
-            DataModel(
-                type = if(isMonitor) DataModelType.StartMonitoring else DataModelType.StartWatching,
-                target = deviceName
-            ),success
-        )
+    fun resetRepositoryAndFirebase() {
+        this.target = null
+        firebaseClient.resetFirebaseClient()
+    }
+
+
+    fun sendConnectionRequest(target: String, success : (Boolean) -> Unit) {
+        webRTCClient.call(target)
+        success(true)
     }
 
     override fun onTransferEventToSocket(data: DataModel) {
@@ -156,24 +137,16 @@ class MainRepository @Inject constructor(
 
     interface Listener {
         fun onLatestEventReceived(data: DataModel)
-        fun endCall()
     }
 
-    fun setDevice(device: String) {
-        this.device = device
+    fun setTarget(target:String){
+        this.target = target
     }
 
-    fun setFirebaseCurrentDevice(device:String) {
-        firebaseClient.setCurrentDevice(device)
-    }
 
     fun setCurrentUserId(userId:String) {
         this.userId = userId
         firebaseClient.setCurrentUserId(userId)
-    }
-
-    fun getCurrentWatcherId(): String {
-        return firebaseClient.getCurrentWatcherId()
     }
 
     fun initWebrtcClient(device: String) {
@@ -192,17 +165,19 @@ class MainRepository @Inject constructor(
             override fun onIceCandidate(p0: IceCandidate?) {
                 super.onIceCandidate(p0)
                 p0?.let{
-                    webRTCClient.sendIceCandidate(device,it)
+                    webRTCClient.sendIceCandidate(target!!,it)
                 }
             }
 
             override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
                 super.onConnectionChange(newState)
+                Log.d("GOTHER",newState.toString())
                 if(newState == PeerConnection.PeerConnectionState.CONNECTED) {
+                    Log.d("EVENT_CONNECTED","CONNCETED")
                     //1.change my status to in call
 //                    changeDeviceStatus(DeviceStatus.IN_STREAM)
                     //2.clear latest event inside my user section in firebase database
-//                    firebaseClient.clearLatestEvent()
+                    firebaseClient.clearLatestEvent()
                 }
             }
         })
@@ -217,22 +192,32 @@ class MainRepository @Inject constructor(
         this.remoteView = view
     }
 
-    fun startCall(deviceName: String) {
-        webRTCClient.call(deviceName)
-    }
-
-    fun endCall(){
+    fun closeWebRTCConnection(){
         webRTCClient.closeConnection()
-        firebaseClient.changeDeviceStatus(DeviceStatus.ONLINE)
     }
 
-    fun sendEndCall() {
-        onTransferEventToSocket(
+    fun sendEndWatching(){
+        firebaseClient.sendMessageToOtherClient(
             DataModel(
-                type = DataModelType.EndCall,
-                target = device!!
+                type = DataModelType.EndWatching,
+                target = target!!
             )
-        )
+        ){}
+    }
+
+    fun sendEndMonitoring(){
+        if(target !== null) {
+            onTransferEventToSocket(
+                DataModel(
+                    type = DataModelType.EndMonitoring,
+                    target = target!!
+                )
+            )
+        }
+    }
+
+    private fun resetTarget() {
+        this.target = null
     }
 
     private fun changeDeviceStatus(status: DeviceStatus) {
@@ -250,7 +235,5 @@ class MainRepository @Inject constructor(
     fun switchCamera() {
         webRTCClient.switchCamera()
     }
-
-
 
 }

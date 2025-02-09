@@ -86,7 +86,6 @@ class WebRTCClient @Inject constructor(
 
     //negotiation section
     fun call(target:String) {
-        //Stopped here, continue from configuring this place
         peerConnection?.createOffer(object : MySdpObserver() {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 super.onCreateSuccess(desc)
