@@ -60,7 +60,6 @@ class MainRepository @Inject constructor(
 
     fun removeDevice(deviceName: String, isDone:(Boolean, String?) -> Unit) {
         firebaseClient.removeDevice(deviceName, isDone)
-        resetTarget()
     }
 
     fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {
@@ -73,7 +72,6 @@ class MainRepository @Inject constructor(
 
     fun removeWatcher(isDone:(Boolean,String?)->Unit){
         firebaseClient.removeWatcher(isDone)
-        resetTarget()
     }
 
     fun initFirebase(){

@@ -23,7 +23,13 @@ class WebRTCClient @Inject constructor(
     private val eglBaseContext = EglBase.create().eglBaseContext
     private val peerConnectionFactory by lazy {createPeerConnectionFactory()}
     private var peerConnection:PeerConnection?=null
-    private val iceServer = listOf(
+    private val iceServers = listOf(
+        PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
+            .createIceServer(),
+        PeerConnection.IceServer.builder("turn:global.relay.metered.ca:3478?transport=udp")
+            .setUsername("fe969608e247adcf08a4f7b9")
+            .setPassword("v5QRnPJXseRHGVUY")
+            .createIceServer(),
         PeerConnection.IceServer.builder("turns:global.relay.metered.ca:443?transport=tcp")
             .setUsername("fe969608e247adcf08a4f7b9")
             .setPassword("v5QRnPJXseRHGVUY")
@@ -80,7 +86,8 @@ class WebRTCClient @Inject constructor(
         peerConnection = createPeerConnection(observer)
     }
     private fun createPeerConnection(observer: PeerConnection.Observer): PeerConnection? {
-        val rtcConfig = PeerConnection.RTCConfiguration(iceServer)
+        val rtcConfig = PeerConnection.RTCConfiguration(iceServers)
+        rtcConfig.iceTransportsType = PeerConnection.IceTransportsType.ALL
         return peerConnectionFactory.createPeerConnection(rtcConfig, observer)
     }
 

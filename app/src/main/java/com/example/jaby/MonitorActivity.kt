@@ -133,7 +133,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
 
     private fun removeData() {
         if(isMonitor) {
-            mainRepository.sendEndMonitoring()
             MainService.remoteSurfaceView?.release()
             MainService.remoteSurfaceView = null
             MainService.localSurfaceView?.release()
@@ -147,7 +146,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             }
             endMyService()
         } else {
-            mainRepository.sendEndWatching()
             localViewRenderer?.release()
             localViewRenderer = null
             remoteViewRenderer?.release()
