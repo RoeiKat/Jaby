@@ -1,5 +1,6 @@
 package com.example.jaby
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -39,6 +40,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
         init()
     }
 
+    @SuppressLint("SetTextI18n")
     private fun init() {
         intent.getStringExtra("device")?.let{
             this.monitorDevice = it
@@ -71,7 +73,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             views.apply {
                 localViewRenderer = localView
                 remoteViewRenderer = remoteView
-                monitorTitleTv.text = "Monitoring on Device ${monitorDevice}"
+                monitorTitleTv.text = "Monitoring on Device $monitorDevice"
                 endMonitorButton.setOnClickListener{
                     removeWatcher()
                 }

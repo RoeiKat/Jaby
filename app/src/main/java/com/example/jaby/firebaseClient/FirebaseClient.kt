@@ -50,6 +50,7 @@ class FirebaseClient @Inject constructor(
             .child(currentUserId!!)
             .child(FirebaseFieldNames.WATCHERS)
 
+
         watchersRef.addListenerForSingleValueEvent(object : MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 watchersRef.child(currentDevice!!)
@@ -65,22 +66,22 @@ class FirebaseClient @Inject constructor(
         })
     }
 
-    fun addWatcher(
-        device: String,
-        done: (Boolean, String?) -> Unit
-    ) {
+    fun addWatcher(device: String, done: (Boolean, String?) -> Unit) {
         val watchersRef = dbRef
             .child(FirebaseFieldNames.USERS)
             .child(currentUserId!!)
             .child(FirebaseFieldNames.WATCHERS)
 
+        val devicesRef = dbRef
+            .child(FirebaseFieldNames.USERS)
+            .child(currentUserId!!)
+            .child(FirebaseFieldNames.DEVICES)
+
         watchersRef.addListenerForSingleValueEvent(object : MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val count = snapshot.childrenCount
                 val newWatcherId = "watcher${count + 1}"
-
                 setCurrentDevice(newWatcherId)
-
                 val watcherData = mapOf(
                     "watcher" to newWatcherId,
                     "deviceName" to device,
@@ -89,7 +90,15 @@ class FirebaseClient @Inject constructor(
                 watchersRef.child(newWatcherId)
                     .setValue(watcherData)
                     .addOnCompleteListener {
-                        watchersRef.child(newWatcherId).onDisconnect().removeValue().addOnCompleteListener{}.addOnFailureListener{}
+                        devicesRef.addListenerForSingleValueEvent(object:MyEventListener() {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                super.onDataChange(snapshot)
+                                devicesRef.child(device)
+                                    .child(FirebaseFieldNames.WATCHERS)
+                                    .setValue(newWatcherId)
+                            }
+                        })
+                        watchersRef.child(newWatcherId).onDisconnect().removeValue()
                         done(true, null) }
                     .addOnFailureListener { done(false, it.message) }
             }
@@ -122,13 +131,13 @@ class FirebaseClient @Inject constructor(
         }
     }
 
-
     fun setCurrentUserId(userId:String) {
         this.currentUserId = userId
     }
 
     fun sendMessageToOtherClient(message:DataModel, success:(Boolean) -> Unit) {
         if(message.target == currentDevice) {
+            success(false)
             return
         }
         val field = if(isMonitor) FirebaseFieldNames.WATCHERS else FirebaseFieldNames.DEVICES
@@ -143,14 +152,9 @@ class FirebaseClient @Inject constructor(
             }
     }
 
-    interface Listener {
-        fun onLatestEventReceived(event:DataModel)
-    }
-
     fun removeDevice(deviceName: String, done: (Boolean, String?) -> Unit) {
         dbRef.addListenerForSingleValueEvent(object: MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(mAuth.currentUser != null) {
                     if(snapshot.child(FirebaseFieldNames.USERS).child(currentUserId!!).child(FirebaseFieldNames.DEVICES).hasChild(deviceName))
                     {
                         dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
@@ -165,9 +169,6 @@ class FirebaseClient @Inject constructor(
                     } else {
                         done(false, "Device doesn't exists")
                     }
-                } else {
-                    done(false, "Not Authenticated")
-                }
             }
         })
     }
@@ -175,7 +176,6 @@ class FirebaseClient @Inject constructor(
     fun addDevice(deviceName: String, done: (Boolean, String?) -> Unit) {
         dbRef.addListenerForSingleValueEvent(object: MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(mAuth.currentUser != null) {
                     if(snapshot.child(FirebaseFieldNames.USERS).child(currentUserId!!).child(FirebaseFieldNames.DEVICES).hasChild(deviceName))
                     {
                         done(false, "Device already exists")
@@ -192,9 +192,6 @@ class FirebaseClient @Inject constructor(
                                 done(false,it.message)
                             }
                     }
-                } else {
-                    done(false, "Not Authenticated")
-                }
             }
         })
     }
@@ -202,15 +199,11 @@ class FirebaseClient @Inject constructor(
     fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {
         dbRef.addValueEventListener(object : MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(mAuth.currentUser == null) {
-                    return
-                } else {
                     val list = snapshot.child(FirebaseFieldNames.USERS).child(currentUserId!!)
                         .child(FirebaseFieldNames.DEVICES).children.map {
                             it.key!! to it.child(FirebaseFieldNames.STATUS).value.toString()
                         }
                     status(list)
-                }
             }
         })
     }
@@ -219,16 +212,16 @@ class FirebaseClient @Inject constructor(
         mAuth.signOut()
     }
 
-    fun signUp(username:String, password: String, done: (Boolean,String?) -> Unit) {
-        mAuth.createUserWithEmailAndPassword(username,password).addOnCompleteListener{
+    fun signUp(email:String, password: String, done: (Boolean,String?) -> Unit) {
+        mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener{
             task ->
             if(task.isSuccessful) {
-                val userUID = mAuth.currentUser?.uid.toString()
-                dbRef.child("Users").child(userUID).setValue(true).addOnCompleteListener{
-                    setCurrentUserId(userUID)
-                    done(true,null)
-                }.addOnFailureListener{
-                    done(false, it.message)
+                val userId = mAuth.currentUser?.uid
+                if(userId != null) {
+                    setCurrentUserId(userId)
+                    done(true, null)
+                } else {
+                    done(false, "Failed retrieving user data")
                 }
             } else {
                 done(false, "Something went wrong")
@@ -239,15 +232,19 @@ class FirebaseClient @Inject constructor(
 
     }
 
-    fun login(username:String, password: String, done: (Boolean,String?) -> Unit) {
-        mAuth.signInWithEmailAndPassword(username,password).addOnCompleteListener{
+    fun login(email:String, password: String, done: (Boolean,String?) -> Unit) {
+        mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener{
                 task ->
             if(task.isSuccessful) {
-                val userId = mAuth.currentUser!!.uid
-                setCurrentUserId(userId)
-                done(true, null)
+                val userId = mAuth.currentUser?.uid
+                if(userId != null) {
+                    setCurrentUserId(userId)
+                    done(true, null)
+                } else {
+                    done(false, "Failed retrieving user data")
+                }
             } else {
-                done(false, "Email / Password incorrect")
+                done(false, "The Email or Password you entered is incorrect. Please try again.")
             }
         }.addOnFailureListener{
             done(false, it.message)
@@ -266,5 +263,9 @@ class FirebaseClient @Inject constructor(
             .child(field).child(currentDevice!!)
             .child(FirebaseFieldNames.LATEST_EVENT)
             .setValue(null)
+    }
+
+    interface Listener {
+        fun onLatestEventReceived(event:DataModel)
     }
 }

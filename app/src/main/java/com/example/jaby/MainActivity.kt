@@ -64,32 +64,24 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
         setSupportActionBar(views.appBarMain.toolbar)
 
         views.appBarMain.startMonitoringFAB.setOnClickListener { _ ->
-            // Create an AlertDialog Builder
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Enter Device Name")
-
-            // Create an EditText for user input
             val input = EditText(this)
             input.hint = "Device Name"
             input.inputType = InputType.TYPE_CLASS_TEXT
             builder.setView(input)
 
-            // Set up the positive ("OK") button action
-            builder.setPositiveButton("OK") { dialog, _ ->
+            builder.setPositiveButton("Add Device!") { dialog, _ ->
                 val deviceName = input.text.toString().trim()
                 if (deviceName.isNotEmpty()) {
                     addDevice(deviceName)
                 } else {
-                    // Optionally, show a message if the input is empty
                     Toast.makeText(this, "Please enter a device name.", Toast.LENGTH_SHORT).show()
                 }
             }
-
-            // Set up the negative ("Cancel") button action
             builder.setNegativeButton("Cancel") { dialog, _ ->
                 dialog.cancel()
             }
-            // Show the dialog
             builder.show()
         }
         val drawerLayout: DrawerLayout = views.drawerLayout
@@ -106,20 +98,15 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
         homeFragment = getHomeFragment()
 
-
-        // Microphone and Camera permissions code
         val permissionsNeeded = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // On Android 13+ include POST_NOTIFICATIONS as well as Camera and Microphone.
             arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.POST_NOTIFICATIONS
             )
         } else {
-            // On older versions, just request Camera and Microphone.
             arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO
@@ -139,7 +126,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
                 PERMISSIONS_REQUEST_CODE
             )
         } else {
-            // All permissions already granted; proceed with initialization.
             init()
         }
     }
@@ -156,14 +142,8 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     }
 
     private fun init() {
-        //1.Observe other users status
         subscribeObservers()
-        //2.Set username
         setUserId()
-        //3.Start waiting for calls
-//        MainService.listener = this
-        //4.Start foreground service to listen for negotiations and calls
-//        startMyService()
     }
 
     override fun onStartWatchClicked(deviceName: String) {
@@ -180,6 +160,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
                             putExtra("userId", mAuth.currentUser!!.uid)
                             putExtra("device", deviceName)
                             putExtra("isMonitor", false)
+                            finish()
                         })
                     }
                 }
@@ -219,6 +200,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
                     putExtra("userId", mAuth.currentUser!!.uid)
                     putExtra("device", deviceName)
                     putExtra("isMonitor", true)
+                    finish()
                 })
             }
 
@@ -227,10 +209,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
     private fun signOut() {
         mAuth.signOut()
-        moveToLoginActivity()
-    }
-
-    private fun moveToLoginActivity() {
         intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()

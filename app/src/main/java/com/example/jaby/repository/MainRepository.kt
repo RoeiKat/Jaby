@@ -105,7 +105,6 @@ class MainRepository @Inject constructor(
                             null
                         }
                         candidate?.let {
-                            Log.d("GOTHER",it.toString())
                             webRTCClient.addIceCandidateToPeer(it)
                         }
                     }
