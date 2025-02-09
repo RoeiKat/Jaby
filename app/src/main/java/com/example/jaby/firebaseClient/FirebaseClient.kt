@@ -39,7 +39,7 @@ class FirebaseClient @Inject constructor(
         return this.currentDevice!!
     }
 
-    fun resetFirebaseClient() {
+    private fun resetFirebaseClient() {
         this.currentDevice = null
         this.isMonitor = false
     }
@@ -49,14 +49,11 @@ class FirebaseClient @Inject constructor(
             .child(FirebaseFieldNames.USERS)
             .child(currentUserId!!)
             .child(FirebaseFieldNames.WATCHERS)
-
-
         watchersRef.addListenerForSingleValueEvent(object : MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 watchersRef.child(currentDevice!!)
                     .removeValue()
                     .addOnCompleteListener{
-                        setIsMonitor(false)
                         done(true,null)
                     }
                     .addOnFailureListener{
@@ -174,26 +171,32 @@ class FirebaseClient @Inject constructor(
     }
 
     fun addDevice(deviceName: String, done: (Boolean, String?) -> Unit) {
-        dbRef.addListenerForSingleValueEvent(object: MyEventListener() {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                    if(snapshot.child(FirebaseFieldNames.USERS).child(currentUserId!!).child(FirebaseFieldNames.DEVICES).hasChild(deviceName))
-                    {
+        try {
+            dbRef.addListenerForSingleValueEvent(object : MyEventListener() {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.child(FirebaseFieldNames.USERS).child(currentUserId!!)
+                            .child(FirebaseFieldNames.DEVICES).hasChild(deviceName)
+                    ) {
                         done(false, "Device already exists")
                     } else {
                         dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
                             .child(FirebaseFieldNames.DEVICES).child(deviceName)
                             .child(FirebaseFieldNames.STATUS).setValue(DeviceStatus.ONLINE)
-                            .addOnCompleteListener{
+                            .addOnCompleteListener {
                                 setCurrentDevice(deviceName)
                                 dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-                                    .child(FirebaseFieldNames.DEVICES).child(deviceName).onDisconnect().removeValue()
-                                done(true,null)
-                            }.addOnFailureListener{
-                                done(false,it.message)
+                                    .child(FirebaseFieldNames.DEVICES).child(deviceName)
+                                    .onDisconnect().removeValue()
+                                done(true, null)
+                            }.addOnFailureListener {
+                                done(false, it.message)
                             }
                     }
-            }
-        })
+                }
+            })
+        }catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun observeDevicesStatus(status: (List<Pair<String,String>>) -> Unit) {

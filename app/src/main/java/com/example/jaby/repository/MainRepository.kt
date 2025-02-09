@@ -117,12 +117,6 @@ class MainRepository @Inject constructor(
         })
     }
 
-    fun resetRepositoryAndFirebase() {
-        this.target = null
-        firebaseClient.resetFirebaseClient()
-    }
-
-
     fun sendConnectionRequest(target: String, success : (Boolean) -> Unit) {
         webRTCClient.call(target)
         success(true)

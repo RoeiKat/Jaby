@@ -67,7 +67,6 @@ class MainService: Service(),MainRepository.Listener {
 
     private fun endMonitoringAndRestartRepository() {
         mainRepository.closeWebRTCConnection()
-        mainRepository.resetRepositoryAndFirebase()
         mainRepository.initWebrtcClient("null")
     }
 

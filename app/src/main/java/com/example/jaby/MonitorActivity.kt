@@ -110,7 +110,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             } else {
                 mainRepository.sendEndWatching()
                 mainRepository.closeWebRTCConnection()
-                mainRepository.resetRepositoryAndFirebase()
                 mainRepository.initWebrtcClient("null")
                 moveToMainActivity()
                 finish()
@@ -158,7 +157,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
                 } else {
                     mainRepository.sendEndWatching()
                     mainRepository.closeWebRTCConnection()
-                    mainRepository.resetRepositoryAndFirebase()
                     mainRepository.initWebrtcClient("null")
                 }
             }
