@@ -149,21 +149,27 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     override fun onStartWatchClicked(deviceName: String) {
         mainRepository.addWatcher(deviceName) { done, msg ->
             if (done) {
-                val currentDevice = mainRepository.getCurrentDevice()
-                mainRepository.setIsMonitor(false)
-                mainRepository.initFirebase()
-                mainRepository.setTarget(deviceName)
-                mainRepository.initWebrtcClient(currentDevice)
-                mainRepository.sendConnectionRequest(deviceName) {
-                    if (it) {
-                        startActivity(Intent(this, MonitorActivity::class.java).apply {
-                            putExtra("userId", mAuth.currentUser!!.uid)
-                            putExtra("device", deviceName)
-                            putExtra("isMonitor", false)
-                            finish()
-                        })
-                    }
-                }
+                startActivity(Intent(this, MonitorActivity::class.java).apply {
+                    putExtra("userId", mAuth.currentUser!!.uid)
+                    putExtra("device", deviceName)
+                    putExtra("isMonitor", false)
+                    finish()
+                })
+//                val currentDevice = mainRepository.getCurrentDevice()
+//                mainRepository.setIsMonitor(false)
+//                mainRepository.initFirebase()
+//                mainRepository.setTarget(deviceName)
+//                mainRepository.initWebrtcClient(currentDevice)
+//                mainRepository.sendConnectionRequest(deviceName) {
+//                    if (it) {
+//                        startActivity(Intent(this, MonitorActivity::class.java).apply {
+//                            putExtra("userId", mAuth.currentUser!!.uid)
+//                            putExtra("device", deviceName)
+//                            putExtra("isMonitor", false)
+//                            finish()
+//                        })
+//                    }
+//                }
             } else {
                 Toast.makeText(this, "Failed to add watcher: $msg", Toast.LENGTH_SHORT).show()
             }

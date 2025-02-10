@@ -69,7 +69,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
                 mainServiceRepository.setUpViews(monitorDevice!!,userId!!,isMonitor)
             }
         } else {
-            mainRepository.listener = this
             views.apply {
                 localViewRenderer = localView
                 remoteViewRenderer = remoteView
@@ -79,6 +78,17 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
                 }
                 mainRepository.initLocalSurfaceView(remoteViewRenderer!!, isMonitor)
                 mainRepository.initRemoteSurfaceView(localViewRenderer!!)
+            }
+            mainRepository.listener = this
+            mainRepository.setIsMonitor(false)
+            val currentDevice = mainRepository.getCurrentDevice()
+            mainRepository.initFirebase()
+            mainRepository.setTarget(monitorDevice!!)
+            mainRepository.initWebrtcClient(currentDevice)
+            mainRepository.sendConnectionRequest(monitorDevice!!) {
+                if (it) {
+                    Log.d("SENT_CONNECTION_REQ", "SUCCESS")
+                }
             }
         }
 

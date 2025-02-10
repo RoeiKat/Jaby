@@ -62,18 +62,20 @@
         android:background="@color/faded_black"
         app:layout_constraintBottom_toBottomOf="parent"
         android:id="@+id/controlPanelLayout">
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:id="@+id/endMonitorButton"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_exit"/>
+
         <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:id="@+id/toggleMicrophoneButton"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_microphone_off"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/endMonitorButton"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_exit"/>
 
 
 

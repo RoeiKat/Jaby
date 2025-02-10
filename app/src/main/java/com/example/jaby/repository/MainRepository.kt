@@ -98,7 +98,6 @@ class MainRepository @Inject constructor(
                         )
                     }
                     DataModelType.IceCandidates-> {
-                        Log.d("GOTHER",event.data.toString())
                         val candidate: IceCandidate? = try {
                             gson.fromJson(event.data.toString(),IceCandidate::class.java)
                         }catch (e:Exception){
@@ -162,12 +161,15 @@ class MainRepository @Inject constructor(
 
             override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
                 super.onConnectionChange(newState)
-                Log.d("GOTHER",newState.toString())
+                Log.d("NEW_STATE",newState.toString())
                 if(newState == PeerConnection.PeerConnectionState.CONNECTED) {
                     Log.d("EVENT_CONNECTED","CONNCETED")
                     //1.change my status to in call
 //                    changeDeviceStatus(DeviceStatus.IN_STREAM)
                     //2.clear latest event inside my user section in firebase database
+                    firebaseClient.clearLatestEvent()
+                }
+                if(newState == PeerConnection.PeerConnectionState.DISCONNECTED) {
                     firebaseClient.clearLatestEvent()
                 }
             }

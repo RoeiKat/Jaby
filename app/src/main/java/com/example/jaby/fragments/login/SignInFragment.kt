@@ -6,7 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.Toast
 import com.example.jaby.R
 import com.example.jaby.repository.MainRepository
@@ -18,11 +20,6 @@ import javax.inject.Inject
 
 class SignInFragment : Fragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,14 +27,15 @@ class SignInFragment : Fragment() {
         val view =  inflater.inflate(R.layout.fragment_sign_in, container, false)
         val activity = requireActivity() as LoginActivity
 
-        val backBtn: MaterialTextView = view.findViewById(R.id.back_btn)
-        val continueBtn: MaterialButton = view.findViewById(R.id.sign_in_btn)
-        val googleBtn: MaterialButton = view.findViewById(R.id.google_sign_in_btn)
-        val usernameET: EditText = view.findViewById(R.id.username_ET)
-        val passwordET: EditText = view.findViewById(R.id.password_ET)
+        val btnBack: ImageButton = view.findViewById(R.id.btn_back)
+        val btnSignIn: Button = view.findViewById(R.id.btn_sign_in)
+        val btnGoogleSignIn: Button = view.findViewById(R.id.btn_sign_in_google)
+
+        val etEmail: EditText = view.findViewById(R.id.et_email)
+        val etPassword: EditText = view.findViewById(R.id.et_password)
 
 
-        backBtn.setOnClickListener{
+        btnBack.setOnClickListener{
             val fragment = EntryFragment()
             requireActivity().supportFragmentManager.beginTransaction().apply{
                 setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right, R.anim.enter_from_left, R.anim.exit_to_right)
@@ -46,12 +44,11 @@ class SignInFragment : Fragment() {
             }
         }
 
-        continueBtn.setOnClickListener{
-            activity.login(usernameET.text.toString(),passwordET.text.toString())
+        btnSignIn.setOnClickListener{
+            activity.login(etEmail.text.toString(),etPassword.text.toString())
         }
 
         return view
     }
-
 
 }
