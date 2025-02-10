@@ -109,6 +109,7 @@ class MainRepository @Inject constructor(
                     }
                     DataModelType.EndWatching -> {
                         resetTarget()
+                        Log.d("RESET_TARGET", "target: $target")
                     }
                     else -> Unit
                 }

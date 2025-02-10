@@ -9,4 +9,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="green_shade">#4CAF50</color>
     <color name="faded_black">#57000000</color>
+    <color name="et_primary_color">#313131</color>
+    <color name="et_focused_color">#4CAF50</color>
+    <color name="et_pressed_color">#0B610E</color>
+
+
 </resources>

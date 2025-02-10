@@ -28,6 +28,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
     private var userId:String?=null
     private var monitorDevice:String?=null
     private var isMonitor:Boolean = false
+    private var currentDevice:String?=null
     private var remoteViewRenderer: SurfaceViewRenderer? = null
     private var localViewRenderer: SurfaceViewRenderer? = null
 
@@ -81,10 +82,10 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             }
             mainRepository.listener = this
             mainRepository.setIsMonitor(false)
-            val currentDevice = mainRepository.getCurrentDevice()
+            currentDevice = mainRepository.getCurrentDevice()
             mainRepository.initFirebase()
             mainRepository.setTarget(monitorDevice!!)
-            mainRepository.initWebrtcClient(currentDevice)
+            mainRepository.initWebrtcClient(currentDevice!!)
             mainRepository.sendConnectionRequest(monitorDevice!!) {
                 if (it) {
                     Log.d("SENT_CONNECTION_REQ", "SUCCESS")
@@ -162,12 +163,10 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             remoteViewRenderer?.release()
             remoteViewRenderer = null
             mainRepository.removeWatcher(){isDone,reason ->
-                if(!isDone) {
-                    Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
+                if (isDone) {
+                    Log.d("MonitorActivity", "Watcher '$currentDevice' removed successfully.")
                 } else {
-                    mainRepository.sendEndWatching()
-                    mainRepository.closeWebRTCConnection()
-                    mainRepository.initWebrtcClient("null")
+                    Log.e("MonitorActivity", "Failed to remove device '$currentDevice': $reason")
                 }
             }
         }

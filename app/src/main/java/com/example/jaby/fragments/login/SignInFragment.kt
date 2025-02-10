@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import com.example.jaby.R
 import com.example.jaby.repository.MainRepository
@@ -34,6 +35,9 @@ class SignInFragment : Fragment() {
         val etEmail: EditText = view.findViewById(R.id.et_email)
         val etPassword: EditText = view.findViewById(R.id.et_password)
 
+        val tvSignUp: TextView = view.findViewById(R.id.tv_sign_up)
+        val tvForgotPassword: TextView = view.findViewById(R.id.tv_forgot_password)
+
 
         btnBack.setOnClickListener{
             val fragment = EntryFragment()
@@ -43,6 +47,17 @@ class SignInFragment : Fragment() {
                 commit()
             }
         }
+
+        tvSignUp.setOnClickListener{
+            val fragment = SignUpFragment()
+            requireActivity().supportFragmentManager.beginTransaction().apply{
+                setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_right)
+                replace(R.id.nav_container, fragment)
+                commit()
+            }
+        }
+
+
 
         btnSignIn.setOnClickListener{
             activity.login(etEmail.text.toString(),etPassword.text.toString())
