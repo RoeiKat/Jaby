@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.jaby.R
 import com.example.jaby.ui.login.LoginActivity
+import com.google.android.material.button.MaterialButton
 
 
 class SignInFragment : Fragment() {
@@ -25,15 +26,15 @@ class SignInFragment : Fragment() {
 
         val btnBack: ImageButton = view.findViewById(R.id.btn_back)
         val btnSignIn: Button = view.findViewById(R.id.btn_sign_in)
-        val btnGoogleSignIn: Button = view.findViewById(R.id.btn_sign_in_google)
+        val btnGoogleSignIn: MaterialButton = view.findViewById(R.id.btn_sign_in_google)
 
         val etEmail: EditText = view.findViewById(R.id.et_email)
         val etPassword: EditText = view.findViewById(R.id.et_password)
 
         val tvSignUp: TextView = view.findViewById(R.id.tv_sign_up)
-        tvSignUp.paintFlags = tvSignUp.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-
         val tvForgotPassword: TextView = view.findViewById(R.id.tv_forgot_password)
+        tvSignUp.paintFlags = tvSignUp.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        tvForgotPassword.paintFlags = tvForgotPassword.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
 
         btnBack.setOnClickListener{

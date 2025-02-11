@@ -35,7 +35,7 @@ class SignUpFragment : Fragment() {
 
         val btnBack: ImageButton = view.findViewById(R.id.btn_back)
         val btnSignUp: Button = view.findViewById(R.id.btn_sign_up)
-        val btnGoogleSignUp: Button = view.findViewById(R.id.btn_sign_up_google)
+        val btnGoogleSignUp: MaterialButton = view.findViewById(R.id.btn_sign_up_google)
 
         val etEmail: EditText = view.findViewById(R.id.et_email)
         val etPassword: EditText = view.findViewById(R.id.et_password)
