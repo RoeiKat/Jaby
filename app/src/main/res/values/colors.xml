@@ -9,9 +9,18 @@
     <color name="white">#FFFFFFFF</color>
     <color name="green_shade">#4CAF50</color>
     <color name="faded_black">#57000000</color>
-    <color name="et_primary_color">#313131</color>
-    <color name="et_focused_color">#4CAF50</color>
-    <color name="et_pressed_color">#0B610E</color>
+    <color name="background_color">#151515</color>
+    <color name="color_white">#F2F7F2</color>
+    <color name="color_primary">#1CE481</color>
+    <color name="color_secondary">#2D2C2D</color>
+    <color name="color_border">#323232</color>
+    <color name="et_pressed_color">#026946</color>
+    <color name="et_focused_color">#1CE481</color>
+    <color name="et_background_color">#1b1a1a</color>
+    <color name="color_hint">#6c7376</color>
+
+
+
 
 
 </resources>

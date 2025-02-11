@@ -6,7 +6,6 @@
     android:id="@+id/entry_fragment_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     tools:context=".fragments.login.EntryFragment">
 
     <!-- CardView wrapping the ImageView to provide rounded corners -->

@@ -57,7 +57,7 @@ android:padding="24dp">
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     android:layout_marginTop="16dp"
-    style="@style/BeautifulEditTextStyle" />
+    style="@style/edit_text_style" />
 
 <EditText
     android:id="@+id/et_password"
@@ -70,7 +70,8 @@ android:padding="24dp">
     app:layout_constraintBottom_toTopOf="@id/btn_sign_in"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
-    android:layout_marginTop="16dp" />
+    android:layout_marginTop="16dp"
+    style="@style/edit_text_style" />
 
 <Button
     android:id="@+id/btn_sign_in"
