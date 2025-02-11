@@ -1,8 +1,7 @@
 package com.example.jaby.fragments.login
 
+import android.graphics.Paint
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,13 +9,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
+import androidx.fragment.app.Fragment
 import com.example.jaby.R
-import com.example.jaby.repository.MainRepository
 import com.example.jaby.ui.login.LoginActivity
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.textview.MaterialTextView
-import javax.inject.Inject
 
 
 class SignInFragment : Fragment() {
@@ -36,6 +31,8 @@ class SignInFragment : Fragment() {
         val etPassword: EditText = view.findViewById(R.id.et_password)
 
         val tvSignUp: TextView = view.findViewById(R.id.tv_sign_up)
+        tvSignUp.paintFlags = tvSignUp.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+
         val tvForgotPassword: TextView = view.findViewById(R.id.tv_forgot_password)
 
 

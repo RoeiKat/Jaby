@@ -54,9 +54,19 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var views: ActivityMainBinding
 
+    override fun onStart() {
+        super.onStart()
+        mainRepository.checkUser(){
+                isDone,reason ->
+            if(!isDone) {
+                Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
+                signOut()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(mAuth.currentUser == null) signOut()
 
         views = ActivityMainBinding.inflate(layoutInflater)
         setContentView(views.root)

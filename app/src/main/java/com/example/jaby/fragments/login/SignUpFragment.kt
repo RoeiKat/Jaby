@@ -1,5 +1,6 @@
 package com.example.jaby.fragments.login
 
+import android.graphics.Paint
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -40,6 +41,7 @@ class SignUpFragment : Fragment() {
         val etPassword: EditText = view.findViewById(R.id.et_password)
 
         val tvSignIn: TextView = view.findViewById(R.id.tv_sign_in)
+        tvSignIn.paintFlags = tvSignIn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         btnBack.setOnClickListener{
             val fragment = EntryFragment()

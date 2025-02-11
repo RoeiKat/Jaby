@@ -106,23 +106,38 @@
         android:gravity="center"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/btn_sign_up_google"
-        app:layout_constraintBottom_toTopOf="@id/tv_sign_in"
+        app:layout_constraintBottom_toTopOf="@id/container_sign_in"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
-    <TextView
-        android:id="@+id/tv_sign_in"
+    <LinearLayout
+        android:id="@+id/container_sign_in"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Already have an account? Sign In"
-        android:textColor="?attr/colorAccent"
-        android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/tv_terms"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Already have an account? "
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+        <TextView
+            android:id="@+id/tv_sign_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign In"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

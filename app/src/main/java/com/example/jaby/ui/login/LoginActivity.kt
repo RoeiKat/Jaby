@@ -9,6 +9,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
@@ -18,13 +19,16 @@ import com.example.jaby.databinding.ActivityLoginBinding
 
 import com.example.jaby.R
 import com.example.jaby.fragments.login.EntryFragment
+import com.example.jaby.fragments.login.SignInFragment
+import com.example.jaby.fragments.login.VerificationFragment
 import com.example.jaby.repository.MainRepository
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 
-@AndroidEntryPoint class LoginActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
 
@@ -34,8 +38,13 @@ import javax.inject.Inject
     override fun onStart() {
         super.onStart()
         if(mAuth.currentUser != null) {
-            moveToMainActivity()
+            if(mAuth.currentUser!!.isEmailVerified) {
+                moveToMainActivity()
+            } else {
+                moveToVerificationFragment()
+            }
         }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,28 +62,45 @@ import javax.inject.Inject
             if(!isDone) {
                 Toast.makeText(this, reason,Toast.LENGTH_SHORT).show()
             } else {
-                //start moving to our main activity
-                moveToMainActivity()
+                if(mAuth.currentUser != null && !mAuth.currentUser!!.isEmailVerified){
+                    Log.d("Verification", "User not verified")
+                    moveToVerificationFragment()
+                } else {
+                    moveToMainActivity()
+                }
             }
         }
     }
-    fun signUp(username: String, password: String) {
+    fun signUp(email: String, password: String) {
         mainRepository.signUp(
-            username,password){
+            email,password){
                 isDone, reason ->
             if(!isDone) {
                 Toast.makeText(this, reason,Toast.LENGTH_SHORT).show()
             } else {
-                //start moving to our main activity
-                moveToMainActivity()
+                if(mAuth.currentUser != null && !mAuth.currentUser!!.isEmailVerified){
+                    Log.d("Verification", "User not verified")
+                    moveToVerificationFragment()
+                } else {
+                    moveToMainActivity()
+                }
             }
         }
     }
 
-    private fun moveToMainActivity() {
+    fun moveToMainActivity() {
         intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    private fun moveToVerificationFragment() {
+        val fragment = VerificationFragment()
+        supportFragmentManager.beginTransaction().apply{
+            setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left, R.anim.enter_from_right, R.anim.exit_to_left)
+            replace(R.id.nav_container, fragment)
+            commit()
+        }
     }
 
 }

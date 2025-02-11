@@ -9,6 +9,7 @@ import com.example.jaby.utils.DeviceStatus
 import com.example.jaby.utils.FirebaseFieldNames
 import com.example.jaby.utils.MyEventListener
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -215,17 +216,57 @@ class FirebaseClient @Inject constructor(
         mAuth.signOut()
     }
 
+    fun checkUser(done:(Boolean, String?) -> Unit) {
+        val user = mAuth.currentUser
+        if (user != null) {
+            user.reload().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val refreshedUser = mAuth.currentUser
+                    if (refreshedUser == null) {
+                        done(false, "User has been deleted.")
+                    } else {
+                        done(true,null)
+                    }
+                } else {
+                    val exception = task.exception
+                    if (exception is FirebaseAuthException && exception.errorCode == "ERROR_USER_NOT_FOUND") {
+                        done(false, "User not found (deleted).")
+                    } else {
+                        done(false, "Reload failed")
+                    }
+                }
+            }
+        } else {
+            done(false, "No user is signed in.")
+        }
+    }
+
+    private fun sendJabyVerificationMail(done: (Boolean,String?) -> Unit) {
+        if(mAuth.currentUser != null) {
+            mAuth.currentUser!!.sendEmailVerification().addOnCompleteListener{
+                task ->
+                if(task.isSuccessful) {
+                    val userId = mAuth.currentUser?.uid
+                    if(userId != null) {
+                        setCurrentUserId(userId)
+                        done(true,null)
+                    } else {
+                        done(false,"Failed retrieving user data ")
+                    }
+                } else {
+                    done(false,"Something went wrong")
+                }
+            }.addOnFailureListener{
+                done(false,it.message)
+            }
+        }
+    }
+
     fun signUp(email:String, password: String, done: (Boolean,String?) -> Unit) {
         mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener{
             task ->
             if(task.isSuccessful) {
-                val userId = mAuth.currentUser?.uid
-                if(userId != null) {
-                    setCurrentUserId(userId)
-                    done(true, null)
-                } else {
-                    done(false, "Failed retrieving user data")
-                }
+                sendJabyVerificationMail(done)
             } else {
                 done(false, "Something went wrong")
             }
@@ -267,6 +308,8 @@ class FirebaseClient @Inject constructor(
             .child(FirebaseFieldNames.LATEST_EVENT)
             .setValue(null)
     }
+
+
 
     interface Listener {
         fun onLatestEventReceived(event:DataModel)

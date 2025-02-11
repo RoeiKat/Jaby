@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_verification"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.login.VerificationFragment">
+
+    <!-- Centering the content with a vertical LinearLayout -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- ImageView for the verification image -->
+        <ImageView
+            android:id="@+id/image_verification"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:src="@drawable/ic_verification"
+            android:contentDescription="verified image" />
+
+        <!-- TextView showing the waiting message -->
+        <TextView
+            android:id="@+id/text_verification_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You need to be verified in order to continue"
+            android:layout_marginTop="16dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <!-- TextView acting as a "Resend" button -->
+        <TextView
+            android:id="@+id/text_resend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Resend"
+            android:layout_marginTop="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </LinearLayout>
+
+</FrameLayout>

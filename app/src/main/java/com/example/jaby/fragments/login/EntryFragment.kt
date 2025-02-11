@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import com.example.jaby.R
 import com.google.android.material.button.MaterialButton
 
@@ -23,8 +24,8 @@ class EntryFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_entry, container, false)
-        val signUpBtn: MaterialButton = view.findViewById(R.id.btn_sign_up)
-        val signInBtn: MaterialButton = view.findViewById(R.id.btn_sign_in)
+        val signUpBtn: Button = view.findViewById(R.id.btn_sign_up)
+        val signInBtn: Button = view.findViewById(R.id.btn_sign_in)
 
         signUpBtn.setOnClickListener{
             val fragment = SignUpFragment()

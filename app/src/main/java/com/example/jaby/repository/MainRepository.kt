@@ -47,6 +47,10 @@ class MainRepository @Inject constructor(
         firebaseClient.signOut()
     }
 
+    fun checkUser(isDone:(Boolean,String?) -> Unit){
+        firebaseClient.checkUser(isDone)
+    }
+
     fun login(username: String, password: String, isDone:(Boolean,String?) -> Unit) {
         firebaseClient.login(username,password,isDone)
     }
