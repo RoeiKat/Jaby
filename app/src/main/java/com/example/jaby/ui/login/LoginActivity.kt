@@ -31,9 +31,12 @@ import javax.inject.Inject
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-
     @Inject lateinit var mAuth: FirebaseAuth
     @Inject lateinit var mainRepository: MainRepository
+
+
+    var emailError = false
+    var passwordError = false
 
     override fun onStart() {
         super.onStart()

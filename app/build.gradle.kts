@@ -66,6 +66,9 @@ dependencies {
     implementation(libs.androidx.activity)
     kapt("com.google.dagger:hilt-android-compiler:2.53")
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
+
     implementation ("com.mesibo.api:webrtc:1.0.5")
 
 

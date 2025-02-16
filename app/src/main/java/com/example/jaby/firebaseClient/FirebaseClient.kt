@@ -1,5 +1,6 @@
 package com.example.jaby.firebaseClient
 
+import android.content.Context
 import android.provider.ContactsContract.Data
 import android.util.Log
 import android.widget.Toast
@@ -9,7 +10,9 @@ import com.example.jaby.utils.DeviceStatus
 import com.example.jaby.utils.FirebaseFieldNames
 import com.example.jaby.utils.MyEventListener
 import com.google.firebase.auth.FirebaseAuth
+
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -22,7 +25,8 @@ import javax.inject.Singleton
 class FirebaseClient @Inject constructor(
     private val dbRef:DatabaseReference,
     private val gson: Gson,
-    private val mAuth: FirebaseAuth
+    private val mAuth: FirebaseAuth,
+    private val context: Context,
 ) {
     private var currentUserId:String? = null
     private var currentDevice:String? = null
@@ -241,7 +245,11 @@ class FirebaseClient @Inject constructor(
         }
     }
 
-    private fun sendJabyVerificationMail(done: (Boolean,String?) -> Unit) {
+    fun sendResetPasswordMail(done:(Boolean,String?) -> Unit) {
+        TODO("To be implemented")
+    }
+
+    fun sendJabyVerificationMail(done: (Boolean,String?) -> Unit) {
         if(mAuth.currentUser != null) {
             mAuth.currentUser!!.sendEmailVerification().addOnCompleteListener{
                 task ->
@@ -262,21 +270,54 @@ class FirebaseClient @Inject constructor(
         }
     }
 
-    fun signUp(email:String, password: String, done: (Boolean,String?) -> Unit) {
-        mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener{
-            task ->
-            if(task.isSuccessful) {
-                sendJabyVerificationMail(done)
-            } else {
-                done(false, "Something went wrong")
-            }
-        }.addOnFailureListener{
-            done(false, it.message)
+    fun signUp(email: String, password: String, done: (Boolean, String?) -> Unit) {
+        if (email.isEmpty() || password.isEmpty()) {
+            done(false, "Email and password cannot be empty")
+            return
         }
+        mAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    sendJabyVerificationMail(done)
+                } else {
+                    val exception = task.exception
+                    if (exception is FirebaseAuthWeakPasswordException) {
+                        done(false, "Password is too weak. Please choose a stronger password.")
+                    } else {
+                        done(false, "Something went wrong")
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                if (exception is FirebaseAuthWeakPasswordException) {
+                    done(false, "Password is too weak. Please choose a stronger password.")
+                } else {
+                    done(false, exception.message)
+                }
+            }
+    }
 
+//    private fun getGoogleIdToken(): String? {
+//        // Get the last signed in Google account. If the account is null,
+//        // it means the user hasn’t signed in with Google yet.
+//        val account = GoogleSignIn.getLastSignedInAccount(context)
+//        return account?.idToken
+//    }
+
+
+    fun loginWithGoogle(done: (Boolean,String?) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    fun signUpWithGoogle(done: (Boolean,String?) -> Unit) {
+        TODO("Not yet implemented")
     }
 
     fun login(email:String, password: String, done: (Boolean,String?) -> Unit) {
+        if (email.isEmpty() || password.isEmpty()) {
+            done(false, "Email and password cannot be empty")
+            return
+        }
         mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener{
                 task ->
             if(task.isSuccessful) {
