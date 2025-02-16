@@ -182,6 +182,7 @@
         app:layout_constraintTop_toBottomOf="@id/tv_forgot_password"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
@@ -190,7 +191,8 @@
             android:text="Don't have an account? "
             android:textColor="@color/color_white"
             android:textStyle="bold"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            />
 
         <TextView
             android:id="@+id/tv_sign_up"

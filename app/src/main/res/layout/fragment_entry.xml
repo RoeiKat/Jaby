@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     tools:context=".fragments.login.EntryFragment">
 
-    <!-- CardView wrapping the ImageView to provide rounded corners -->
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="225dp"
@@ -22,15 +21,15 @@
         app:layout_constraintBottom_toTopOf="@+id/text_container">
 
         <ImageView
-            android:background="#000000"
             android:id="@+id/splash_img"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"
+            android:src="@drawable/entry_img"
+            />
     </androidx.cardview.widget.CardView>
 
-    <!-- Container for header texts -->
     <LinearLayout
         android:id="@+id/text_container"
         android:layout_width="0dp"
@@ -51,20 +50,8 @@
             android:textStyle="bold"
             android:gravity="center"
             android:textAlignment="center"
-            android:textColor="@color/black" />
+            android:textColor="@color/color_white" />
 
-        <TextView
-            android:id="@+id/splash_header2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/header2"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:gravity="center"
-
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:layout_marginTop="8dp" />
 
         <TextView
             android:id="@+id/splash_txt"
@@ -74,11 +61,10 @@
             android:textSize="20sp"
             android:gravity="center"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="@color/color_white"
             android:layout_marginTop="8dp" />
     </LinearLayout>
 
-    <!-- Container for Sign Up / Sign In buttons -->
     <LinearLayout
         android:id="@+id/btn_container"
         android:layout_width="0dp"
@@ -97,7 +83,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/sign_up"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            style="@style/button_primary_style"/>
 
         <Space
             android:layout_width="16dp"
@@ -109,7 +96,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/sign_in"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            style="@style/button_primary_style"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

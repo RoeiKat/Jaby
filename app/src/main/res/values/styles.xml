@@ -3,7 +3,7 @@
         <style name="edit_text_style" parent="Widget.AppCompat.EditText">
         <item name="android:background">@drawable/edit_text_bg</item>
         <item name="android:padding">16dp</item>
-            <item name="hintTextColor">@color/color_hint</item>
+            <item name="android:textColorHint">@color/color_hint</item>
             <item name="android:textColor">@color/color_white</item>
         <item name="android:textSize">16sp</item>
         </style>

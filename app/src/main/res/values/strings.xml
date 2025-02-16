@@ -22,9 +22,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="lorem">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</string>
-    <string name="splash_txt">Jaby turns your smartphone into a baby monitor, offering live video and audio feeds, ensuring you peace of mind.</string>
+    <string name="splash_txt">Stay close to your baby anytime, anywhere.\nJaby turns your smartphone into a real-time baby monitor with live video and audio feed, ensuring you peace of mind.</string>
     <string name="header2">Let\'s make things happen!</string>
-    <string name="header1">Welcome aboard Jaby</string>
+    <string name="header1">Say hello to Jaby!</string>
     <string name="sign_up">Sign Up</string>
     <string name="sign_in">Sign in</string>
     <string name="password">Password</string>
