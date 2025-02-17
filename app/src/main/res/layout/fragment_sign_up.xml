@@ -41,7 +41,7 @@
         app:layout_constraintTop_toBottomOf="@id/img_logo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+         />
 
     <TextView
         android:id="@+id/tv_email_label"
@@ -167,12 +167,14 @@
         android:textColor="@color/color_white"
         android:textStyle="bold"
         android:gravity="center"
+        android:textSize="12sp"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/btn_sign_up_google"
         app:layout_constraintBottom_toTopOf="@id/container_sign_in"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="8dp"
+        />
 
     <LinearLayout
         android:id="@+id/container_sign_in"
@@ -189,7 +191,7 @@
             android:text="Already have an account? "
             android:textColor="@color/color_white"
             android:textStyle="bold"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="12dp" />
 
         <TextView
             android:id="@+id/tv_sign_in"
@@ -198,8 +200,8 @@
             android:text="Sign In"
             android:textColor="@color/color_primary"
             android:textStyle="bold"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="48dp"/>
+            android:layout_marginTop="12dp"
+            />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
