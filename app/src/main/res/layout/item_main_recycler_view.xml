@@ -8,15 +8,13 @@
     android:layout_height="wrap_content"
     app:cardElevation="4dp"
     app:cardCornerRadius="8dp"
-    app:cardBackgroundColor="@color/green_shade"
+    app:cardBackgroundColor="@color/color_hint"
     android:layout_margin="8dp">
 
-    <!-- Use a FrameLayout so we can overlay the icon -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Your existing content with extra end padding to make room for the icon -->
         <LinearLayout
             android:id="@+id/textContainer"
             android:layout_width="match_parent"
@@ -25,33 +23,32 @@
             android:paddingStart="16dp"
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
-            android:paddingEnd="72dp">  <!-- increased right padding -->
+            android:paddingEnd="72dp">
 
             <TextView
                 android:id="@+id/deviceNameTv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Card Title"
+                android:text="Device Name"
                 android:textSize="18sp"
                 android:textColor="@android:color/white"
-                tools:text="Card Title" />
+                tools:text="Device Name" />
 
             <TextView
                 android:id="@+id/statusTv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Description text goes here."
+                android:text="Device status"
                 android:textSize="14sp"
                 android:textColor="@android:color/white"
                 android:layout_marginTop="4dp"
-                tools:text="Description text goes here." />
+                tools:text="Device status goes here" />
         </LinearLayout>
 
-        <!-- The monitor icon, aligned to the right side -->
         <ImageView
             android:id="@+id/monitorIcon"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@drawable/ic_monitor"
             android:layout_gravity="end|center_vertical"
             android:layout_marginEnd="@dimen/fab_margin"
