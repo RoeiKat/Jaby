@@ -1,6 +1,7 @@
 package com.example.jaby.repository
 
 import android.bluetooth.BluetoothClass.Device
+import android.content.Intent
 import android.provider.ContactsContract.Data
 import android.util.Log
 import com.example.jaby.firebaseClient.FirebaseClient
@@ -56,6 +57,22 @@ class MainRepository @Inject constructor(
     }
     fun signUp(username: String, password: String, isDone:(Boolean,String?) -> Unit) {
         firebaseClient.signUp(username,password,isDone)
+    }
+
+    fun getGoogleIdTokenFromIntent(data: Intent?): String? {
+        return firebaseClient.getGoogleIdTokenFromIntent(data)
+    }
+
+    fun loginWithGoogleToken(googleIdToken: String, isDone: (Boolean, String?) -> Unit) {
+        firebaseClient.loginWithGoogleToken(googleIdToken,isDone)
+    }
+
+    fun sendVerificationEmail(isDone:(Boolean,String?) -> Unit) {
+        firebaseClient.sendJabyVerificationMail(isDone)
+    }
+
+    fun sendResetPasswordMail(email: String,isDone:(Boolean,String?) -> Unit){
+        firebaseClient.sendResetPasswordMail(email,isDone)
     }
 
     fun addDevice(deviceName: String, isDone:(Boolean,String?) -> Unit){

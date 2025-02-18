@@ -2,6 +2,8 @@ package com.example.jaby.fragments.login
 
 import android.graphics.Paint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import com.example.jaby.R
 import com.example.jaby.repository.MainRepository
 import com.example.jaby.ui.login.LoginActivity
@@ -43,6 +46,7 @@ class SignUpFragment : Fragment() {
         val tvSignIn: TextView = view.findViewById(R.id.tv_sign_in)
         tvSignIn.paintFlags = tvSignIn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
+
         btnBack.setOnClickListener{
             val fragment = EntryFragment()
             requireActivity().supportFragmentManager.beginTransaction().apply{
@@ -51,11 +55,12 @@ class SignUpFragment : Fragment() {
                 commit()
             }
         }
-
         btnSignUp.setOnClickListener{
             activity.signUp(etEmail.text.toString(),etPassword.text.toString())
         }
-
+        btnGoogleSignUp.setOnClickListener{
+            activity.signInWithGoogle()
+        }
         tvSignIn.setOnClickListener {
             val fragment = SignInFragment()
             requireActivity().supportFragmentManager.beginTransaction().apply {

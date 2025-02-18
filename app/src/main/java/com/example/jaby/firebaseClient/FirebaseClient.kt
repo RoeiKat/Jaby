@@ -1,6 +1,7 @@
 package com.example.jaby.firebaseClient
 
 import android.content.Context
+import android.content.Intent
 import android.provider.ContactsContract.Data
 import android.util.Log
 import android.widget.Toast
@@ -9,10 +10,14 @@ import com.example.jaby.utils.DataModelType
 import com.example.jaby.utils.DeviceStatus
 import com.example.jaby.utils.FirebaseFieldNames
 import com.example.jaby.utils.MyEventListener
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -20,6 +25,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.reflect.typeOf
 
 @Singleton
 class FirebaseClient @Inject constructor(
@@ -245,9 +251,21 @@ class FirebaseClient @Inject constructor(
         }
     }
 
-    fun sendResetPasswordMail(done:(Boolean,String?) -> Unit) {
-        TODO("To be implemented")
+    fun sendResetPasswordMail(email: String, done: (Boolean, String?) -> Unit) {
+        if (email.isEmpty()) {
+            done(false, "Email cannot be empty")
+            return
+        }
+        mAuth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    done(true, null)
+                } else {
+                    done(false, task.exception?.message ?: "Something went wrong")
+                }
+            }
     }
+
 
     fun sendJabyVerificationMail(done: (Boolean,String?) -> Unit) {
         if(mAuth.currentUser != null) {
@@ -281,36 +299,46 @@ class FirebaseClient @Inject constructor(
                     sendJabyVerificationMail(done)
                 } else {
                     val exception = task.exception
-                    if (exception is FirebaseAuthWeakPasswordException) {
-                        done(false, "Password is too weak. Please choose a stronger password.")
+                    val errorMessage = if (exception != null && exception.message?.contains("Password") == true) {
+                        "Password is too weak. Please choose a stronger password."
                     } else {
-                        done(false, "Something went wrong")
+                        exception?.message ?: "Something went wrong"
                     }
+                    done(false, errorMessage)
                 }
             }
-            .addOnFailureListener { exception ->
-                if (exception is FirebaseAuthWeakPasswordException) {
-                    done(false, "Password is too weak. Please choose a stronger password.")
+    }
+
+
+
+    fun getGoogleIdTokenFromIntent(data: Intent?): String? {
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        return try {
+            val account = task.getResult(ApiException::class.java)
+            account?.idToken
+        } catch (e: ApiException) {
+            Log.w("FirebaseClient", "Google sign in failed", e)
+            null
+        }
+    }
+
+    fun loginWithGoogleToken(googleIdToken: String, done: (Boolean, String?) -> Unit) {
+        val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
+        mAuth.signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userId = mAuth.currentUser?.uid
+                    if (userId != null) {
+                        setCurrentUserId(userId)
+                        done(true, null)
+                    } else {
+                        done(false, "Failed retrieving user data")
+                    }
                 } else {
-                    done(false, exception.message)
+                    done(false, "Authentication with Google failed")
                 }
             }
-    }
-
-//    private fun getGoogleIdToken(): String? {
-//        // Get the last signed in Google account. If the account is null,
-//        // it means the user hasn’t signed in with Google yet.
-//        val account = GoogleSignIn.getLastSignedInAccount(context)
-//        return account?.idToken
-//    }
-
-
-    fun loginWithGoogle(done: (Boolean,String?) -> Unit) {
-        TODO("Not yet implemented")
-    }
-
-    fun signUpWithGoogle(done: (Boolean,String?) -> Unit) {
-        TODO("Not yet implemented")
+            .addOnFailureListener { done(false, it.message) }
     }
 
     fun login(email:String, password: String, done: (Boolean,String?) -> Unit) {
@@ -326,7 +354,7 @@ class FirebaseClient @Inject constructor(
                     setCurrentUserId(userId)
                     done(true, null)
                 } else {
-                    done(false, "Failed retrieving user data")
+                    done(false, "The Email or Password you entered is incorrect. Please try again")
                 }
             } else {
                 done(false, "The Email or Password you entered is incorrect. Please try again.")

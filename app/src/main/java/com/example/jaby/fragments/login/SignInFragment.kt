@@ -37,6 +37,15 @@ class SignInFragment : Fragment() {
         tvForgotPassword.paintFlags = tvForgotPassword.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
 
+        tvForgotPassword.setOnClickListener{
+            val fragment = ResetPasswordFragment()
+            requireActivity().supportFragmentManager.beginTransaction().apply {
+                setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_left)
+                replace(R.id.nav_container, fragment)
+                commit()
+            }
+        }
+
         btnBack.setOnClickListener{
             val fragment = EntryFragment()
             requireActivity().supportFragmentManager.beginTransaction().apply{
@@ -45,7 +54,6 @@ class SignInFragment : Fragment() {
                 commit()
             }
         }
-
         tvSignUp.setOnClickListener{
             val fragment = SignUpFragment()
             requireActivity().supportFragmentManager.beginTransaction().apply{
@@ -54,9 +62,9 @@ class SignInFragment : Fragment() {
                 commit()
             }
         }
-
-
-
+        btnGoogleSignIn.setOnClickListener{
+            activity.signInWithGoogle()
+        }
         btnSignIn.setOnClickListener{
             activity.login(etEmail.text.toString(),etPassword.text.toString())
         }
