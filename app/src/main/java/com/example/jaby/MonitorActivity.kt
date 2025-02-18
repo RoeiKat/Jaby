@@ -71,14 +71,14 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             }
         } else {
             views.apply {
-                localViewRenderer = localView
-                remoteViewRenderer = remoteView
+                localViewRenderer = remoteView
+                remoteViewRenderer = localView
                 monitorTitleTv.text = "Monitoring on Device $monitorDevice"
                 endMonitorButton.setOnClickListener{
                     removeWatcher()
                 }
-                mainRepository.initLocalSurfaceView(remoteViewRenderer!!, isMonitor)
-                mainRepository.initRemoteSurfaceView(localViewRenderer!!)
+                mainRepository.initLocalSurfaceView(localViewRenderer!!, isMonitor)
+                mainRepository.initRemoteSurfaceView(remoteViewRenderer!!)
             }
             mainRepository.listener = this
             mainRepository.setIsMonitor(false)

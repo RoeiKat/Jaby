@@ -67,7 +67,8 @@ class MainService: Service(),MainRepository.Listener {
 
     private fun endMonitoringAndRestartRepository() {
         mainRepository.closeWebRTCConnection()
-        mainRepository.initWebrtcClient("null")
+        main
+//        mainRepository.initWebrtcClient("null")
     }
 
     private fun handleSetupViews(incomingIntent: Intent) {

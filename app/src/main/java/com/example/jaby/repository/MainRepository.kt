@@ -130,7 +130,6 @@ class MainRepository @Inject constructor(
                     }
                     DataModelType.EndWatching -> {
                         resetTarget()
-                        Log.d("RESET_TARGET", "target: $target")
                     }
                     else -> Unit
                 }
@@ -192,6 +191,8 @@ class MainRepository @Inject constructor(
                     firebaseClient.clearLatestEvent()
                 }
                 if(newState == PeerConnection.PeerConnectionState.DISCONNECTED) {
+                    firebaseClient.clearLatestEvent()
+                } else if (newState == PeerConnection.PeerConnectionState.CLOSED) {
                     firebaseClient.clearLatestEvent()
                 }
             }
