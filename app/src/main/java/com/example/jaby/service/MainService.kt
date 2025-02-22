@@ -25,7 +25,11 @@ class MainService: Service(),MainRepository.Listener {
 
     private var isMonitor = false
     private var isServiceRunning = false
+
+    private var userId: String? = null
     private var device: String? = null
+    private var target: String? = null
+
 
     private lateinit var notificationManager: NotificationManager
 
@@ -49,8 +53,9 @@ class MainService: Service(),MainRepository.Listener {
         intent?.let{ incomingIntent ->
             when(incomingIntent.action){
                 MainServiceActions.START_SERVICE.name -> handleStartService(incomingIntent)
-                MainServiceActions.SETUP_VIEWS.name -> handleSetupViews(incomingIntent)
+                MainServiceActions.SETUP_VIEWS.name -> handleSetupViews()
                 MainServiceActions.STOP_SERVICE.name -> handleStopService()
+                MainServiceActions.START_WATCHING.name -> handleStartWatching(incomingIntent)
                 MainServiceActions.END_MONITORING.name -> handleEndMonitoring()
                 else -> Unit
 
@@ -58,6 +63,16 @@ class MainService: Service(),MainRepository.Listener {
         }
 
         return START_STICKY
+    }
+
+    private fun handleStartWatching(incomingIntent: Intent) {
+        target = incomingIntent.getStringExtra("target")
+        if(target.isNullOrEmpty()) {
+            return
+        } else {
+            mainRepository.setTarget(target!!)
+            mainRepository.sendStartWatching()
+        }
     }
 
     private fun handleEndMonitoring() {
@@ -76,7 +91,7 @@ class MainService: Service(),MainRepository.Listener {
         mainRepository.initWebrtcClient(device!!)
     }
 
-    private fun handleSetupViews(incomingIntent: Intent) {
+    private fun handleSetupViews() {
         mainRepository.initLocalSurfaceView(localSurfaceView!!, isMonitor)
         mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
     }
@@ -91,26 +106,14 @@ class MainService: Service(),MainRepository.Listener {
         //Start our foreground service
         if(!isServiceRunning) {
             isServiceRunning = true
+            userId = incomingIntent.getStringExtra("userId")
             device = incomingIntent.getStringExtra("device")
             isMonitor = incomingIntent.getBooleanExtra("isMonitor", false)
+
             startServiceWithNotification()
-            //setup my clients
-            if(isMonitor) {
-                mainRepository.addDevice(device!!) {
-                        isDone,reason ->
-                    if(!isDone) {
-                        Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
-                    } else {
-                        mainRepository.setIsMonitor(true)
-                        mainRepository.listener = this
-                        mainRepository.initFirebase()
-                    }
-                }
-            } else {
-                mainRepository.setIsMonitor(false)
-                mainRepository.listener = this
-                mainRepository.initFirebase()
-            }
+            mainRepository.setIsMonitor(isMonitor)
+            mainRepository.listener = this
+            mainRepository.initFirebase()
         }
     }
 
@@ -139,6 +142,12 @@ class MainService: Service(),MainRepository.Listener {
                 DataModelType.StartWatching-> {
                     listener?.onWatchRequestReceived(data)
                     }
+                DataModelType.EndWatching-> {
+                    listener?.onEndWatchingReceived()
+                }
+                DataModelType.EndMonitoring-> {
+                    listener?.onEndMonitoringReceived()
+                }
                 else -> Unit
             }
         }
@@ -149,6 +158,8 @@ class MainService: Service(),MainRepository.Listener {
     }
 
     interface Listener {
+        fun onEndWatchingReceived()
+        fun onEndMonitoringReceived()
         fun onWatchRequestReceived(model:DataModel)
     }
 }

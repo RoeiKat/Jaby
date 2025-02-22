@@ -84,12 +84,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             builder.setPositiveButton("Add Device!") { dialog, _ ->
                 val deviceName = input.text.toString().trim()
                 if (deviceName.isNotEmpty()) {
-                    startActivity(Intent(this, MonitorActivity::class.java).apply {
-                        putExtra("userId", mAuth.currentUser!!.uid)
-                        putExtra("device", deviceName)
-                        putExtra("isMonitor", true)
-                        finish()
-                    })
+                    addDevice(deviceName)
                 } else {
                     Toast.makeText(this, "Please enter a device name.", Toast.LENGTH_SHORT).show()
                 }
@@ -161,9 +156,25 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
         setUserId()
     }
 
+    private fun addDevice(deviceName: String) {
+        mainRepository.addDevice(deviceName) {
+                isDone,reason ->
+            if(!isDone) {
+                Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
+            } else {
+                startActivity(Intent(this, MonitorActivity::class.java).apply {
+                    putExtra("userId", mAuth.currentUser!!.uid)
+                    putExtra("device", deviceName)
+                    putExtra("isMonitor", true)
+                    finish()
+                })
+            }
+        }
+    }
+
     override fun onStartWatchClicked(deviceName: String) {
-        mainRepository.addWatcher(deviceName) { done, msg ->
-            if (done) {
+        mainRepository.addWatcher(deviceName) { isDone, reason ->
+            if (isDone) {
                 startActivity(Intent(this, MonitorActivity::class.java).apply {
                     putExtra("userId", mAuth.currentUser!!.uid)
                     putExtra("device", deviceName)
@@ -171,7 +182,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
                     finish()
                 })
             } else {
-                Toast.makeText(this, "Failed to add watcher: $msg", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "$reason", Toast.LENGTH_SHORT).show()
             }
         }
     }

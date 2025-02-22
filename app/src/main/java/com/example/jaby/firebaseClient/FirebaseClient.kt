@@ -87,7 +87,7 @@ class FirebaseClient @Inject constructor(
         watchersRef.addListenerForSingleValueEvent(object : MyEventListener() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val count = snapshot.childrenCount
-                val newWatcherId = "watcher${count + 1}"
+                val newWatcherId = "w_${count}"
                 setCurrentDevice(newWatcherId)
                 val watcherData = mapOf(
                     "watcher" to newWatcherId,

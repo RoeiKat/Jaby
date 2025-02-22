@@ -209,8 +209,9 @@ class WebRTCClient @Inject constructor(
     private fun startLocalStreaming(localView: SurfaceViewRenderer, isMonitor: Boolean) {
         localStream = peerConnectionFactory.createLocalMediaStream(localStreamId)
         if(isMonitor) {
+//            startCapturingCamera(localView)
         }
-            startCapturingCamera(localView)
+        startCapturingCamera(localView)
         localAudioTrack = peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)
         localStream?.addTrack(localAudioTrack)
         peerConnection?.addStream(localStream)

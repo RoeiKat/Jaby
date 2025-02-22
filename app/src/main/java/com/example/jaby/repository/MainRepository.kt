@@ -100,7 +100,6 @@ class MainRepository @Inject constructor(
     fun initFirebase(){
         firebaseClient.subscribeForLatestEvent(object :FirebaseClient.Listener {
             override fun onLatestEventReceived(event: DataModel) {
-//                setTarget(event.sender!!)
                 listener?.onLatestEventReceived(event)
                 Log.d("EventCame", event.type.toString())
                 when(event.type) {

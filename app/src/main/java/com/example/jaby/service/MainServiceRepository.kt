@@ -45,8 +45,15 @@ class MainServiceRepository @Inject constructor(
         val intent = Intent(context,MainService::class.java)
         intent.apply {
             action = MainServiceActions.SETUP_VIEWS.name
-            putExtra("userId",userId)
-            putExtra("device",device)
+        }
+        startServiceIntent(intent)
+    }
+
+    fun sendStartWatching(target: String) {
+        val intent = Intent(context,MainService::class.java)
+        intent.apply {
+            action = MainServiceActions.START_WATCHING.name
+            intent.putExtra("target", target)
         }
         startServiceIntent(intent)
     }

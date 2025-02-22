@@ -5,10 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.jaby.databinding.ActivityMonitorBinding
 import com.example.jaby.repository.MainRepository
 import com.example.jaby.service.MainService
@@ -21,14 +18,17 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository.Listener {
+class MonitorActivity : AppCompatActivity(), MainService.Listener {
     @Inject lateinit var mainRepository: MainRepository
     @Inject lateinit var mainServiceRepository: MainServiceRepository
 
-    private var userId:String?=null
+    //Used by watching device
     private var monitorDevice:String?=null
+    //Used by both devices
+    private var userId:String?=null
     private var isMonitor:Boolean = false
     private var currentDevice:String?=null
+    //Surface view renderers
     private var remoteViewRenderer: SurfaceViewRenderer? = null
     private var localViewRenderer: SurfaceViewRenderer? = null
 
@@ -54,39 +54,65 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             finish()
         }
         isMonitor = intent.getBooleanExtra("isMonitor",false)
-        if(isMonitor) {
-            startMyService(monitorDevice!!)
-            MainService.listener = this
-            mainRepository.initWebrtcClient(monitorDevice!!)
-            views.apply {
-                localViewRenderer = localView
-                remoteViewRenderer = remoteView
-                MainService.remoteSurfaceView = remoteViewRenderer
-                MainService.localSurfaceView = localViewRenderer
-                mainServiceRepository.setUpViews(monitorDevice!!,userId!!)
-                monitorTitleTv.text = "Monitoring on Device $monitorDevice"
+        currentDevice = mainRepository.getCurrentDevice()
+        if(currentDevice.isNullOrEmpty()) {
+            kotlin.run {
+                finish()
+            }
+        }
+        // New Code for both devices service operation
+        startMyService()
+        MainService.listener = this
+        mainRepository.initWebrtcClient(currentDevice!!)
+        views.apply {
+            localViewRenderer = localView
+            remoteViewRenderer = remoteView
+            MainService.localSurfaceView = localViewRenderer
+            MainService.remoteSurfaceView = remoteViewRenderer
+            mainServiceRepository.setUpViews(currentDevice!!,userId!!)
+            if(!isMonitor) {
+                //Views for watcher
+                monitorTitleTv.text = "Watching Device $monitorDevice"
+                endMonitorButton.setOnClickListener{
+                    removeWatcher()
+                }
+                //Send watching request
+                mainServiceRepository.sendStartWatching(monitorDevice!!)
+            } else {
+                //Views for monitor
+                monitorTitleTv.text = "Monitoring on $monitorDevice"
                 endMonitorButton.setOnClickListener{
                     mainServiceRepository.sendEndMonitoring()
                     removeDevice()
                 }
             }
-        } else {
-            currentDevice = mainRepository.getCurrentDevice()
-            startMyService(currentDevice!!)
-            MainService.listener = this
-            mainRepository.initWebrtcClient(currentDevice!!)
-            views.apply {
-                localViewRenderer = localView
-                remoteViewRenderer = remoteView
-                MainService.remoteSurfaceView = remoteViewRenderer
-                MainService.localSurfaceView = localViewRenderer
-                mainServiceRepository.setUpViews(monitorDevice!!,userId!!)
-                monitorTitleTv.text = "Monitoring on Device $monitorDevice"
-                endMonitorButton.setOnClickListener{
-                    removeWatcher()
-                }
-            }
-            mainRepository.sendStartWatching()
+        }
+        // Old code
+//        if(isMonitor) {
+//            startMyService(monitorDevice!!)
+//            MainService.listener = this
+//            mainRepository.initWebrtcClient(monitorDevice!!)
+//            views.apply {
+//                localViewRenderer = localView
+//                remoteViewRenderer = remoteView
+//                MainService.remoteSurfaceView = remoteViewRenderer
+//                MainService.localSurfaceView = localViewRenderer
+//                mainServiceRepository.setUpViews(monitorDevice!!,userId!!)
+//
+//            }
+//        } else {
+//            currentDevice = mainRepository.getCurrentDevice()
+////            startMyService(currentDevice!!)
+//            MainService.listener = this
+//            mainRepository.initWebrtcClient(currentDevice!!)
+//            views.apply {
+//                localViewRenderer = localView
+//                remoteViewRenderer = remoteView
+//                MainService.remoteSurfaceView = remoteViewRenderer
+//                MainService.localSurfaceView = localViewRenderer
+//                mainServiceRepository.setUpViews(monitorDevice!!,userId!!)
+//
+//            }
 //            mainRepository.setIsMonitor(false)
 //            mainRepository.listener = this
 //            mainRepository.initFirebase()
@@ -105,29 +131,37 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
 //                }
 //            }
 //            mainRepository.sendStartWatching()
-        }
+//        }
 
 
     }
 
-    override fun onLatestEventReceived(data: DataModel) {
-        if(data.type == DataModelType.EndMonitoring) {
-            removeWatcher()
-        } else if(data.type == DataModelType.EndWatching){
-            remoteViewRenderer?.clearImage()
-            remoteViewRenderer?.release()
-            remoteViewRenderer = null
-            mainRepository.closeWebRTCConnection()
-            mainRepository.initWebrtcClient(monitorDevice!!)
-        }
-    }
+//    override fun onLatestEventReceived(data: DataModel) {
+//        if(data.type == DataModelType.EndMonitoring) {
+//            removeWatcher()
+//        } else if(data.type == DataModelType.EndWatching){
+//            remoteViewRenderer?.clearImage()
+//            remoteViewRenderer?.release()
+//            remoteViewRenderer = null
+//            mainRepository.closeWebRTCConnection()
+//            mainRepository.initWebrtcClient(monitorDevice!!)
+//        }
+//    }
 
     private fun endMyService(){
         mainServiceRepository.endService()
     }
 
-    private fun startMyService(device:String) {
-        mainServiceRepository.startService(userId!!,device, isMonitor)
+    private fun startMyService() {
+        mainServiceRepository.startService(userId!!,currentDevice!!, isMonitor)
+    }
+
+
+    override fun onEndMonitoringReceived() {
+        TODO("Not yet implemented")
+    }
+    override fun onEndWatchingReceived() {
+        TODO("Not yet implemented")
     }
 
     override fun onWatchRequestReceived(model: DataModel) {
@@ -140,7 +174,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                endMyService()
                 moveToMainActivity()
                 finish()
             }
@@ -148,7 +181,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
     }
 
     private fun removeDevice() {
-        mainRepository.removeDevice(monitorDevice!!){isDone,reason ->
+        mainRepository.removeDevice(currentDevice!!){isDone,reason ->
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
@@ -163,32 +196,11 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
     }
 
     private fun removeData() {
-        if(isMonitor) {
             MainService.remoteSurfaceView?.release()
             MainService.remoteSurfaceView = null
             MainService.localSurfaceView?.release()
             MainService.localSurfaceView = null
-            mainRepository.removeDevice(monitorDevice!!) { isDone, reason ->
-                if (isDone) {
-                    Log.d("MonitorActivity", "Device '$monitorDevice' removed successfully.")
-                } else {
-                    Log.e("MonitorActivity", "Failed to remove device '$monitorDevice': $reason")
-                }
-            }
             endMyService()
-        } else {
-            localViewRenderer?.release()
-            localViewRenderer = null
-            remoteViewRenderer?.release()
-            remoteViewRenderer = null
-            mainRepository.removeWatcher(){isDone,reason ->
-                if (isDone) {
-                    Log.d("MonitorActivity", "Watcher '$currentDevice' removed successfully.")
-                } else {
-                    Log.e("MonitorActivity", "Failed to remove device '$currentDevice': $reason")
-                }
-            }
-        }
     }
 
     override fun onDestroy() {
