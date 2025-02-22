@@ -32,8 +32,7 @@ class FirebaseClient @Inject constructor(
     private val dbRef:DatabaseReference,
     private val gson: Gson,
     private val mAuth: FirebaseAuth,
-    private val context: Context,
-) {
+    ) {
     private var currentUserId:String? = null
     private var currentDevice:String? = null
     private var isMonitor:Boolean = false
@@ -42,7 +41,7 @@ class FirebaseClient @Inject constructor(
         this.isMonitor = isMonitor
     }
 
-    fun setCurrentDevice(device: String?) {
+    private fun setCurrentDevice(device: String?) {
         this.currentDevice = device
     }
 
@@ -101,9 +100,13 @@ class FirebaseClient @Inject constructor(
                         devicesRef.addListenerForSingleValueEvent(object:MyEventListener() {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 super.onDataChange(snapshot)
-                                devicesRef.child(device)
+                                if (snapshot.child(FirebaseFieldNames.USERS).child(currentUserId!!)
+                                        .child(FirebaseFieldNames.DEVICES).hasChild(device)
+                                ) {
+                                    devicesRef.child(device)
                                     .child(FirebaseFieldNames.WATCHERS)
                                     .setValue(newWatcherId)
+                                }
                             }
                         })
                         watchersRef.child(newWatcherId).onDisconnect().removeValue()
@@ -144,20 +147,31 @@ class FirebaseClient @Inject constructor(
     }
 
     fun sendMessageToOtherClient(message:DataModel, success:(Boolean) -> Unit) {
-        if(message.target == currentDevice) {
+        if (message.target == currentDevice) {
             success(false)
             return
         }
-        val field = if(isMonitor) FirebaseFieldNames.WATCHERS else FirebaseFieldNames.DEVICES
-        val convertedMessage = gson.toJson(message.copy(sender = currentDevice))
-        dbRef.child(FirebaseFieldNames.USERS).child(currentUserId!!)
-            .child(field).child(message.target)
-            .child(FirebaseFieldNames.LATEST_EVENT).setValue(convertedMessage)
-            .addOnCompleteListener{
-                success(true)
-            }.addOnFailureListener{
-                success(false)
-            }
+        val field = if (isMonitor) FirebaseFieldNames.WATCHERS else FirebaseFieldNames.DEVICES
+        val targetRef = dbRef.child(FirebaseFieldNames.USERS)
+            .child(currentUserId!!)
+            .child(field)
+            .child(message.target)
+        targetRef.addListenerForSingleValueEvent(object : MyEventListener() {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val convertedMessage = gson.toJson(message.copy(sender = currentDevice))
+                    targetRef.child(FirebaseFieldNames.LATEST_EVENT)
+                        .setValue(convertedMessage)
+                        .addOnCompleteListener {
+                            success(true)
+                        }
+                        .addOnFailureListener {
+                            success(false)
+                        }
+                } else {
+                    success(false)
+                }
+            }})
     }
 
     fun removeDevice(deviceName: String, done: (Boolean, String?) -> Unit) {
@@ -309,8 +323,6 @@ class FirebaseClient @Inject constructor(
             }
     }
 
-
-
     fun getGoogleIdTokenFromIntent(data: Intent?): String? {
         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
         return try {
@@ -377,8 +389,6 @@ class FirebaseClient @Inject constructor(
             .child(FirebaseFieldNames.LATEST_EVENT)
             .setValue(null)
     }
-
-
 
     interface Listener {
         fun onLatestEventReceived(event:DataModel)

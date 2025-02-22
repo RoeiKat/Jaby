@@ -84,7 +84,12 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             builder.setPositiveButton("Add Device!") { dialog, _ ->
                 val deviceName = input.text.toString().trim()
                 if (deviceName.isNotEmpty()) {
-                    addDevice(deviceName)
+                    startActivity(Intent(this, MonitorActivity::class.java).apply {
+                        putExtra("userId", mAuth.currentUser!!.uid)
+                        putExtra("device", deviceName)
+                        putExtra("isMonitor", true)
+                        finish()
+                    })
                 } else {
                     Toast.makeText(this, "Please enter a device name.", Toast.LENGTH_SHORT).show()
                 }
@@ -165,21 +170,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
                     putExtra("isMonitor", false)
                     finish()
                 })
-//                val currentDevice = mainRepository.getCurrentDevice()
-//                mainRepository.setIsMonitor(false)
-//                mainRepository.initFirebase()
-//                mainRepository.setTarget(deviceName)
-//                mainRepository.initWebrtcClient(currentDevice)
-//                mainRepository.sendConnectionRequest(deviceName) {
-//                    if (it) {
-//                        startActivity(Intent(this, MonitorActivity::class.java).apply {
-//                            putExtra("userId", mAuth.currentUser!!.uid)
-//                            putExtra("device", deviceName)
-//                            putExtra("isMonitor", false)
-//                            finish()
-//                        })
-//                    }
-//                }
             } else {
                 Toast.makeText(this, "Failed to add watcher: $msg", Toast.LENGTH_SHORT).show()
             }
@@ -202,26 +192,6 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
         mainRepository.setCurrentUserId(mAuth.currentUser!!.uid)
     }
 
-
-    private fun addDevice(deviceName: String){
-        mainRepository.addDevice(
-            deviceName){
-                isDone, reason ->
-            if(!isDone) {
-                Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
-            } else {
-                //start moving to our monitor activity
-                mainRepository.setIsMonitor(true)
-                startActivity(Intent(this, MonitorActivity::class.java).apply {
-                    putExtra("userId", mAuth.currentUser!!.uid)
-                    putExtra("device", deviceName)
-                    putExtra("isMonitor", true)
-                    finish()
-                })
-            }
-
-        }
-    }
 
     private fun signOut() {
         mAuth.signOut()

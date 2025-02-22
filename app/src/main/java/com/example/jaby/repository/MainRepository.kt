@@ -14,8 +14,10 @@ import com.google.gson.Gson
 import org.webrtc.IceCandidate
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
+import org.webrtc.RtpTransceiver
 import org.webrtc.SessionDescription
 import org.webrtc.SurfaceViewRenderer
+import org.webrtc.VideoTrack
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -98,8 +100,9 @@ class MainRepository @Inject constructor(
     fun initFirebase(){
         firebaseClient.subscribeForLatestEvent(object :FirebaseClient.Listener {
             override fun onLatestEventReceived(event: DataModel) {
-                setTarget(event.sender!!)
+//                setTarget(event.sender!!)
                 listener?.onLatestEventReceived(event)
+                Log.d("EventCame", event.type.toString())
                 when(event.type) {
                     DataModelType.Offer-> {
                         webRTCClient.onRemoteSessionReceived(
@@ -108,6 +111,7 @@ class MainRepository @Inject constructor(
                                 event.data.toString()
                             )
                         )
+                        Log.d("GotToOffer", "Sending answer")
                         webRTCClient.answer(target!!)
                     }
                     DataModelType.Answer-> {
@@ -117,6 +121,7 @@ class MainRepository @Inject constructor(
                                 event.data.toString()
                             )
                         )
+                        Log.d("GotToAnswer", "Answering")
                     }
                     DataModelType.IceCandidates-> {
                         val candidate: IceCandidate? = try {
@@ -125,11 +130,12 @@ class MainRepository @Inject constructor(
                             null
                         }
                         candidate?.let {
+                            Log.d("GotToIceCandidate", "Adding $it")
                             webRTCClient.addIceCandidateToPeer(it)
                         }
                     }
                     DataModelType.EndWatching -> {
-                        resetTarget()
+                        firebaseClient.clearLatestEvent()
                     }
                     else -> Unit
                 }
@@ -137,9 +143,8 @@ class MainRepository @Inject constructor(
         })
     }
 
-    fun sendConnectionRequest(target: String, success : (Boolean) -> Unit) {
-        webRTCClient.call(target)
-        success(true)
+    fun sendConnectionRequest() {
+        webRTCClient.call(this.target!!)
     }
 
     override fun onTransferEventToSocket(data: DataModel) {
@@ -165,34 +170,31 @@ class MainRepository @Inject constructor(
         webRTCClient.initializeWebrtcClient(device, object: MyPeerObserver() {
             override fun onAddStream(p0: MediaStream?) {
                 super.onAddStream(p0)
-
                 try{
+                    Log.d("GotToOnAddStream", "${p0?.videoTracks}")
                     p0?.videoTracks?.get(0)?.addSink(remoteView)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
 
+
             override fun onIceCandidate(p0: IceCandidate?) {
                 super.onIceCandidate(p0)
                 p0?.let{
+                    Log.d("GotToOnIceCandidate_Target", target.toString())
+                    Log.d("GotToOnIceCandidate", "${it.toString()}")
                     webRTCClient.sendIceCandidate(target!!,it)
                 }
             }
 
             override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
                 super.onConnectionChange(newState)
-                Log.d("NEW_STATE",newState.toString())
+                Log.d("WebRTC_CONNECTION_STATE",newState.toString())
                 if(newState == PeerConnection.PeerConnectionState.CONNECTED) {
-                    Log.d("EVENT_CONNECTED","CONNCETED")
                     //1.change my status to in call
-//                    changeDeviceStatus(DeviceStatus.IN_STREAM)
+                    // changeDeviceStatus(DeviceStatus.IN_STREAM)
                     //2.clear latest event inside my user section in firebase database
-                    firebaseClient.clearLatestEvent()
-                }
-                if(newState == PeerConnection.PeerConnectionState.DISCONNECTED) {
-                    firebaseClient.clearLatestEvent()
-                } else if (newState == PeerConnection.PeerConnectionState.CLOSED) {
                     firebaseClient.clearLatestEvent()
                 }
             }
@@ -216,6 +218,15 @@ class MainRepository @Inject constructor(
         firebaseClient.sendMessageToOtherClient(
             DataModel(
                 type = DataModelType.EndWatching,
+                target = target!!
+            )
+        ){}
+    }
+
+    fun sendStartWatching(){
+        firebaseClient.sendMessageToOtherClient(
+            DataModel(
+                type = DataModelType.StartWatching,
                 target = target!!
             )
         ){}

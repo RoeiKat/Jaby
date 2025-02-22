@@ -16,7 +16,6 @@ class WebRTCClient @Inject constructor(
 ) {
     //class variables
     var listener: Listener?=null
-//    private lateinit var userId: String
     private lateinit var deviceName: String
 
     //webrtc variables
@@ -26,9 +25,9 @@ class WebRTCClient @Inject constructor(
     private val iceServers = listOf(
         PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
             .createIceServer(),
-        PeerConnection.IceServer.builder("stun:stun.relay.metered.ca:80")
-            .createIceServer()
-        ,
+//        PeerConnection.IceServer.builder("stun:stun.relay.metered.ca:80")
+//            .createIceServer()
+//        ,
         PeerConnection.IceServer.builder("turn:global.relay.metered.ca:80")
             .setUsername("fe969608e247adcf08a4f7b9")
             .setPassword("v5QRnPJXseRHGVUY")
@@ -210,8 +209,8 @@ class WebRTCClient @Inject constructor(
     private fun startLocalStreaming(localView: SurfaceViewRenderer, isMonitor: Boolean) {
         localStream = peerConnectionFactory.createLocalMediaStream(localStreamId)
         if(isMonitor) {
-            startCapturingCamera(localView)
         }
+            startCapturingCamera(localView)
         localAudioTrack = peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)
         localStream?.addTrack(localAudioTrack)
         peerConnection?.addStream(localStream)

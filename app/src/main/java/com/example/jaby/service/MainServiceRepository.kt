@@ -10,11 +10,12 @@ class MainServiceRepository @Inject constructor(
     private val context: Context
 ) {
 
-    fun startService(userId:String, device:String) {
+    fun startService(userId:String, device:String, isMonitor: Boolean) {
         Thread{
             val intent = Intent(context, MainService::class.java)
             intent.putExtra("userId",userId)
             intent.putExtra("device",device)
+            intent.putExtra("isMonitor",isMonitor)
             intent.action = MainServiceActions.START_SERVICE.name
             startServiceIntent(intent)
         }.start()
@@ -40,13 +41,12 @@ class MainServiceRepository @Inject constructor(
         }
     }
 
-    fun setUpViews(device: String, userId:String,isMonitor: Boolean){
+    fun setUpViews(device: String, userId:String){
         val intent = Intent(context,MainService::class.java)
         intent.apply {
             action = MainServiceActions.SETUP_VIEWS.name
             putExtra("userId",userId)
             putExtra("device",device)
-            putExtra("isMonitor", isMonitor)
         }
         startServiceIntent(intent)
     }

@@ -57,40 +57,54 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
         if(isMonitor) {
             startMyService(monitorDevice!!)
             MainService.listener = this
+            mainRepository.initWebrtcClient(monitorDevice!!)
             views.apply {
                 localViewRenderer = localView
                 remoteViewRenderer = remoteView
+                MainService.remoteSurfaceView = remoteViewRenderer
+                MainService.localSurfaceView = localViewRenderer
+                mainServiceRepository.setUpViews(monitorDevice!!,userId!!)
                 monitorTitleTv.text = "Monitoring on Device $monitorDevice"
                 endMonitorButton.setOnClickListener{
                     mainServiceRepository.sendEndMonitoring()
                     removeDevice()
                 }
-                MainService.remoteSurfaceView = remoteViewRenderer
-                MainService.localSurfaceView = localViewRenderer
-                mainServiceRepository.setUpViews(monitorDevice!!,userId!!,isMonitor)
             }
         } else {
+            currentDevice = mainRepository.getCurrentDevice()
+            startMyService(currentDevice!!)
+            MainService.listener = this
+            mainRepository.initWebrtcClient(currentDevice!!)
             views.apply {
-                localViewRenderer = remoteView
-                remoteViewRenderer = localView
+                localViewRenderer = localView
+                remoteViewRenderer = remoteView
+                MainService.remoteSurfaceView = remoteViewRenderer
+                MainService.localSurfaceView = localViewRenderer
+                mainServiceRepository.setUpViews(monitorDevice!!,userId!!)
                 monitorTitleTv.text = "Monitoring on Device $monitorDevice"
                 endMonitorButton.setOnClickListener{
                     removeWatcher()
                 }
-                mainRepository.initLocalSurfaceView(localViewRenderer!!, isMonitor)
-                mainRepository.initRemoteSurfaceView(remoteViewRenderer!!)
             }
-            mainRepository.listener = this
-            mainRepository.setIsMonitor(false)
-            currentDevice = mainRepository.getCurrentDevice()
-            mainRepository.initFirebase()
-            mainRepository.setTarget(monitorDevice!!)
-            mainRepository.initWebrtcClient(currentDevice!!)
-            mainRepository.sendConnectionRequest(monitorDevice!!) {
-                if (it) {
-                    Log.d("SENT_CONNECTION_REQ", "SUCCESS")
-                }
-            }
+            mainRepository.sendStartWatching()
+//            mainRepository.setIsMonitor(false)
+//            mainRepository.listener = this
+//            mainRepository.initFirebase()
+//            mainRepository.setTarget(monitorDevice!!)
+//            mainRepository.initWebrtcClient(currentDevice!!)
+//            views.apply {
+//                localViewRenderer = localView
+//                remoteViewRenderer = remoteView
+//                mainRepository.initLocalSurfaceView(localViewRenderer!!, isMonitor)
+                // only for debugging isMonitor = true , to video call the 2 devices
+//                mainRepository.initLocalSurfaceView(localViewRenderer!!, true)
+//                mainRepository.initRemoteSurfaceView(remoteViewRenderer!!)
+//                monitorTitleTv.text = "Monitoring on Device $monitorDevice"
+//                endMonitorButton.setOnClickListener{
+//                    removeWatcher()
+//                }
+//            }
+//            mainRepository.sendStartWatching()
         }
 
 
@@ -99,6 +113,12 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
     override fun onLatestEventReceived(data: DataModel) {
         if(data.type == DataModelType.EndMonitoring) {
             removeWatcher()
+        } else if(data.type == DataModelType.EndWatching){
+            remoteViewRenderer?.clearImage()
+            remoteViewRenderer?.release()
+            remoteViewRenderer = null
+            mainRepository.closeWebRTCConnection()
+            mainRepository.initWebrtcClient(monitorDevice!!)
         }
     }
 
@@ -106,12 +126,13 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
         mainServiceRepository.endService()
     }
 
-    private fun startMyService(monitorDevice:String) {
-        mainServiceRepository.startService(userId!!,monitorDevice)
+    private fun startMyService(device:String) {
+        mainServiceRepository.startService(userId!!,device, isMonitor)
     }
 
     override fun onWatchRequestReceived(model: DataModel) {
         mainRepository.setTarget(model.sender!!)
+        mainRepository.sendConnectionRequest()
     }
 
     private fun removeWatcher() {
@@ -119,9 +140,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener,MainRepository
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                mainRepository.sendEndWatching()
-                mainRepository.closeWebRTCConnection()
-                mainRepository.initWebrtcClient("null")
+                endMyService()
                 moveToMainActivity()
                 finish()
             }

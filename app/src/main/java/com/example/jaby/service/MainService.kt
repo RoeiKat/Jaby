@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.IBinder
 import android.provider.ContactsContract.Data
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.jaby.R
 import com.example.jaby.repository.MainRepository
@@ -22,8 +23,9 @@ import javax.inject.Inject
 class MainService: Service(),MainRepository.Listener {
     private val TAG = "MainService"
 
+    private var isMonitor = false
     private var isServiceRunning = false
-    private var monitorDevice: String? = null
+    private var device: String? = null
 
     private lateinit var notificationManager: NotificationManager
 
@@ -60,21 +62,21 @@ class MainService: Service(),MainRepository.Listener {
 
     private fun handleEndMonitoring() {
         //1. we have to send a signal to other peer that call is ended
-        mainRepository.sendEndMonitoring()
+        if(isMonitor) {
+            mainRepository.sendEndMonitoring()
+        } else {
+            mainRepository.sendEndWatching()
+        }
         //2.end out call process and restart our webrtc client
         endMonitoringAndRestartRepository()
     }
 
     private fun endMonitoringAndRestartRepository() {
         mainRepository.closeWebRTCConnection()
-        main
-//        mainRepository.initWebrtcClient("null")
+        mainRepository.initWebrtcClient(device!!)
     }
 
     private fun handleSetupViews(incomingIntent: Intent) {
-//        val userId = incomingIntent.getStringExtra("userId")
-//        val monitorDevice = incomingIntent.getStringExtra("device")
-        val isMonitor = incomingIntent.getBooleanExtra("isMonitor", false)
         mainRepository.initLocalSurfaceView(localSurfaceView!!, isMonitor)
         mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
     }
@@ -89,12 +91,26 @@ class MainService: Service(),MainRepository.Listener {
         //Start our foreground service
         if(!isServiceRunning) {
             isServiceRunning = true
-            monitorDevice = incomingIntent.getStringExtra("device")
+            device = incomingIntent.getStringExtra("device")
+            isMonitor = incomingIntent.getBooleanExtra("isMonitor", false)
             startServiceWithNotification()
             //setup my clients
-            mainRepository.listener = this
-            mainRepository.initFirebase()
-            mainRepository.initWebrtcClient(monitorDevice!!)
+            if(isMonitor) {
+                mainRepository.addDevice(device!!) {
+                        isDone,reason ->
+                    if(!isDone) {
+                        Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
+                    } else {
+                        mainRepository.setIsMonitor(true)
+                        mainRepository.listener = this
+                        mainRepository.initFirebase()
+                    }
+                }
+            } else {
+                mainRepository.setIsMonitor(false)
+                mainRepository.listener = this
+                mainRepository.initFirebase()
+            }
         }
     }
 
