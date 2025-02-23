@@ -12,6 +12,7 @@ import com.example.jaby.service.MainService
 import com.example.jaby.service.MainServiceRepository
 import com.example.jaby.utils.DataModel
 import com.example.jaby.utils.DataModelType
+import com.example.jaby.webrtc.RTCAudioManager
 import dagger.hilt.android.AndroidEntryPoint
 import org.webrtc.SurfaceViewRenderer
 import javax.inject.Inject
@@ -28,6 +29,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     private var userId:String?=null
     private var isMonitor:Boolean = false
     private var currentDevice:String?=null
+    private var isEarSpeakerMode = false
     //Surface view renderers
     private var remoteViewRenderer: SurfaceViewRenderer? = null
     private var localViewRenderer: SurfaceViewRenderer? = null
@@ -70,10 +72,12 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             MainService.localSurfaceView = localViewRenderer
             MainService.remoteSurfaceView = remoteViewRenderer
             mainServiceRepository.setUpViews(currentDevice!!,userId!!)
+            setupToggleAudioDevice()
             if(!isMonitor) {
                 //Views for watcher
                 monitorTitleTv.text = "Watching Device $monitorDevice"
                 endMonitorButton.setOnClickListener{
+                    mainServiceRepository.sendEndStreaming()
                     removeWatcher()
                 }
                 //Send watching request
@@ -82,7 +86,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
                 //Views for monitor
                 monitorTitleTv.text = "Monitoring on $monitorDevice"
                 endMonitorButton.setOnClickListener{
-                    mainServiceRepository.sendEndMonitoring()
+                    mainServiceRepository.sendEndStreaming()
                     removeDevice()
                 }
             }
@@ -148,6 +152,17 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 //        }
 //    }
 
+    private fun setupToggleAudioDevice(){
+//        views.apply {  }
+        if(isEarSpeakerMode) {
+            //Set it to earpiece mode
+            mainServiceRepository.toggleAudioDevice(RTCAudioManager.AudioDevice.EARPIECE.name)
+        } else {
+            //Set it to speaker mode
+            mainServiceRepository.toggleAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE.name)
+        }
+    }
+
     private fun endMyService(){
         mainServiceRepository.endService()
     }
@@ -158,10 +173,21 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
 
     override fun onEndMonitoringReceived() {
-        TODO("Not yet implemented")
+        removeWatcher()
     }
     override fun onEndWatchingReceived() {
-        TODO("Not yet implemented")
+        MainService.remoteSurfaceView?.clearImage()
+        MainService.remoteSurfaceView?.release()
+        MainService.remoteSurfaceView = null
+        MainService.localSurfaceView?.clearImage()
+        MainService.localSurfaceView?.release()
+        MainService.localSurfaceView = null
+
+        mainRepository.closeWebRTCConnection()
+        mainRepository.initWebrtcClient(currentDevice!!)
+        MainService.localSurfaceView = localViewRenderer
+        MainService.remoteSurfaceView = remoteViewRenderer
+        mainServiceRepository.setUpViews(currentDevice!!,userId!!)
     }
 
     override fun onWatchRequestReceived(model: DataModel) {
@@ -174,6 +200,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
+                removeData()
                 moveToMainActivity()
                 finish()
             }
@@ -185,6 +212,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
+                removeData()
                 moveToMainActivity()
                 finish()
             }

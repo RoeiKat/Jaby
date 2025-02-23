@@ -19,6 +19,7 @@ class WebRTCClient @Inject constructor(
     private lateinit var deviceName: String
 
     //webrtc variables
+
     private val eglBaseContext = EglBase.create().eglBaseContext
     private val peerConnectionFactory by lazy {createPeerConnectionFactory()}
     private var peerConnection:PeerConnection?=null
@@ -86,7 +87,8 @@ class WebRTCClient @Inject constructor(
                 DefaultVideoEncoderFactory(
                     eglBaseContext,true,true
                 )
-            ).setOptions(PeerConnectionFactory.Options().apply{
+            )
+            .setOptions(PeerConnectionFactory.Options().apply{
                 disableNetworkMonitor = false
                 disableEncryption = false
             }).createPeerConnectionFactory()
@@ -209,6 +211,7 @@ class WebRTCClient @Inject constructor(
     private fun startLocalStreaming(localView: SurfaceViewRenderer, isMonitor: Boolean) {
         localStream = peerConnectionFactory.createLocalMediaStream(localStreamId)
         if(isMonitor) {
+            // Enable to disable camera for not monitor device
 //            startCapturingCamera(localView)
         }
         startCapturingCamera(localView)

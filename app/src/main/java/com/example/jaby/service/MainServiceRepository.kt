@@ -58,11 +58,37 @@ class MainServiceRepository @Inject constructor(
         startServiceIntent(intent)
     }
 
-    fun sendEndMonitoring() {
+    fun sendEndStreaming() {
         val intent = Intent(context,MainService::class.java)
-        intent.action = MainServiceActions.END_MONITORING.name
+        intent.action = MainServiceActions.END_STREAMING.name
         startServiceIntent(intent)
     }
 
+    fun switchCamera() {
+        val intent = Intent(context,MainService::class.java)
+        intent.action = MainServiceActions.SWITCH_CAMERA.name
+        startServiceIntent(intent)
+    }
+
+    fun toggleVideo(shouldBeMuted: Boolean) {
+        val intent = Intent(context,MainService::class.java)
+        intent.action = MainServiceActions.TOGGLE_VIDEO.name
+        intent.putExtra("shouldBeMuted",shouldBeMuted)
+        startServiceIntent(intent)
+    }
+
+    fun toggleAudio(shouldBeMuted: Boolean) {
+        val intent = Intent(context,MainService::class.java)
+        intent.action = MainServiceActions.TOGGLE_AUDIO.name
+        intent.putExtra("shouldBeMuted",shouldBeMuted)
+        startServiceIntent(intent)
+    }
+
+    fun toggleAudioDevice(type: String) {
+        val intent = Intent(context,MainService::class.java)
+        intent.action = MainServiceActions.TOGGLE_AUDIO_DEVICE.name
+        intent.putExtra("type",type)
+        startServiceIntent(intent)
+    }
 
 }

@@ -16,6 +16,7 @@ import com.example.jaby.repository.MainRepository
 import com.example.jaby.utils.DataModel
 import com.example.jaby.utils.DataModelType
 import com.example.jaby.utils.isValid
+import com.example.jaby.webrtc.RTCAudioManager
 import org.webrtc.SurfaceViewRenderer
 import javax.inject.Inject
 
@@ -32,6 +33,7 @@ class MainService: Service(),MainRepository.Listener {
 
 
     private lateinit var notificationManager: NotificationManager
+    private lateinit var rtcAudioManager: RTCAudioManager
 
 
     @Inject lateinit var mainRepository: MainRepository
@@ -44,6 +46,8 @@ class MainService: Service(),MainRepository.Listener {
 
     override fun onCreate() {
         super.onCreate()
+        rtcAudioManager = RTCAudioManager.create(this)
+        rtcAudioManager.setDefaultAudioDevice(RTCAudioManager.AudioDevice.SPEAKER_PHONE)
         notificationManager = getSystemService(
             NotificationManager::class.java
         )
@@ -56,7 +60,8 @@ class MainService: Service(),MainRepository.Listener {
                 MainServiceActions.SETUP_VIEWS.name -> handleSetupViews()
                 MainServiceActions.STOP_SERVICE.name -> handleStopService()
                 MainServiceActions.START_WATCHING.name -> handleStartWatching(incomingIntent)
-                MainServiceActions.END_MONITORING.name -> handleEndMonitoring()
+                MainServiceActions.END_STREAMING.name -> handleEndStreaming()
+                MainServiceActions.TOGGLE_AUDIO_DEVICE.name -> handleToggleAudioDevice(incomingIntent)
                 else -> Unit
 
             }
@@ -75,14 +80,14 @@ class MainService: Service(),MainRepository.Listener {
         }
     }
 
-    private fun handleEndMonitoring() {
-        //1. we have to send a signal to other peer that call is ended
+    private fun handleEndStreaming() {
+        //1. We have to send a signal to other peer to tell that call is ended
         if(isMonitor) {
             mainRepository.sendEndMonitoring()
         } else {
             mainRepository.sendEndWatching()
         }
-        //2.end out call process and restart our webrtc client
+        //2. End our monitor process and restart our webrtc client
         endMonitoringAndRestartRepository()
     }
 
@@ -94,6 +99,19 @@ class MainService: Service(),MainRepository.Listener {
     private fun handleSetupViews() {
         mainRepository.initLocalSurfaceView(localSurfaceView!!, isMonitor)
         mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
+    }
+
+    private fun handleToggleAudioDevice(incomingIntent: Intent) {
+        val type = when(incomingIntent.getStringExtra("type")){
+            RTCAudioManager.AudioDevice.EARPIECE.name -> RTCAudioManager.AudioDevice.EARPIECE
+            RTCAudioManager.AudioDevice.SPEAKER_PHONE.name -> RTCAudioManager.AudioDevice.SPEAKER_PHONE
+            else -> null
+        }
+        type?.let {
+            rtcAudioManager.setDefaultAudioDevice(it)
+            rtcAudioManager.selectAudioDevice(it)
+            Log.d(TAG,"handleToggleAudioDevice: $it")
+        }
     }
 
     private fun handleStopService() {
