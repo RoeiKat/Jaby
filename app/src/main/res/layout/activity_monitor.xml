@@ -10,12 +10,12 @@
     <org.webrtc.SurfaceViewRenderer
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/remoteView"/>
+        android:id="@+id/monitorView"/>
 
     <org.webrtc.SurfaceViewRenderer
         android:layout_width="100dp"
         android:layout_height="150dp"
-        android:id="@+id/localView"
+        android:id="@+id/remoteView"
         app:layout_constraintBottom_toTopOf="@id/controlPanelLayout"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -69,6 +69,13 @@
             android:id="@+id/toggleMicrophoneButton"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_microphone_off"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/toggleMonitorCamera"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_switch_camera"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="60dp"

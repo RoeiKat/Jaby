@@ -60,6 +60,9 @@ class MainService: Service(),MainRepository.Listener {
                 MainServiceActions.SETUP_VIEWS.name -> handleSetupViews()
                 MainServiceActions.STOP_SERVICE.name -> handleStopService()
                 MainServiceActions.START_WATCHING.name -> handleStartWatching(incomingIntent)
+                MainServiceActions.SWITCH_CAMERA.name -> handleSwitchCamera()
+                MainServiceActions.TOGGLE_AUDIO.name -> handleToggleAudio(incomingIntent)
+                MainServiceActions.SEND_SWITCH_CAMERA.name -> handleSendSwitchCamera()
                 MainServiceActions.END_STREAMING.name -> handleEndStreaming()
                 MainServiceActions.TOGGLE_AUDIO_DEVICE.name -> handleToggleAudioDevice(incomingIntent)
                 else -> Unit
@@ -68,6 +71,14 @@ class MainService: Service(),MainRepository.Listener {
         }
 
         return START_STICKY
+    }
+
+    private fun handleSendSwitchCamera() {
+        mainRepository.sendSwitchMonitorCamera()
+    }
+
+    private fun handleSwitchCamera() {
+        mainRepository.switchCamera()
     }
 
     private fun handleStartWatching(incomingIntent: Intent) {
@@ -93,12 +104,17 @@ class MainService: Service(),MainRepository.Listener {
 
     private fun endMonitoringAndRestartRepository() {
         mainRepository.closeWebRTCConnection()
-        mainRepository.initWebrtcClient(device!!)
+//        mainRepository.initWebrtcClient(device!!)
     }
 
     private fun handleSetupViews() {
         mainRepository.initLocalSurfaceView(localSurfaceView!!, isMonitor)
         mainRepository.initRemoteSurfaceView(remoteSurfaceView!!)
+    }
+
+    private fun handleToggleAudio(incomingIntent: Intent) {
+        val shouldBeMuted = incomingIntent.getBooleanExtra("shouldBeMuted",true)
+        mainRepository.toggleAudio(shouldBeMuted)
     }
 
     private fun handleToggleAudioDevice(incomingIntent: Intent) {
@@ -116,7 +132,6 @@ class MainService: Service(),MainRepository.Listener {
 
     private fun handleStopService() {
         isServiceRunning = false
-        stopForeground(true)
         stopSelf()
     }
 
@@ -166,6 +181,9 @@ class MainService: Service(),MainRepository.Listener {
                 DataModelType.EndMonitoring-> {
                     listener?.onEndMonitoringReceived()
                 }
+                DataModelType.SwitchMonitorCamera -> {
+                    listener?.onSwitchCameraReceived()
+                }
                 else -> Unit
             }
         }
@@ -176,6 +194,7 @@ class MainService: Service(),MainRepository.Listener {
     }
 
     interface Listener {
+        fun onSwitchCameraReceived()
         fun onEndWatchingReceived()
         fun onEndMonitoringReceived()
         fun onWatchRequestReceived(model:DataModel)

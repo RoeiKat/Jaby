@@ -1,11 +1,17 @@
 package com.example.jaby
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.isVisible
 import com.example.jaby.databinding.ActivityMonitorBinding
 import com.example.jaby.repository.MainRepository
 import com.example.jaby.service.MainService
@@ -30,6 +36,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     private var isMonitor:Boolean = false
     private var currentDevice:String?=null
     private var isEarSpeakerMode = false
+    private var isMicrophoneMuted = false
     //Surface view renderers
     private var remoteViewRenderer: SurfaceViewRenderer? = null
     private var localViewRenderer: SurfaceViewRenderer? = null
@@ -67,15 +74,27 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         MainService.listener = this
         mainRepository.initWebrtcClient(currentDevice!!)
         views.apply {
-            localViewRenderer = localView
+            localViewRenderer = monitorView
             remoteViewRenderer = remoteView
-            MainService.localSurfaceView = localViewRenderer
-            MainService.remoteSurfaceView = remoteViewRenderer
+            if(isMonitor) {
+                MainService.localSurfaceView = localViewRenderer
+                MainService.remoteSurfaceView = remoteViewRenderer
+            } else {
+                MainService.localSurfaceView = remoteViewRenderer
+                MainService.remoteSurfaceView = localViewRenderer
+            }
             mainServiceRepository.setUpViews(currentDevice!!,userId!!)
             setupToggleAudioDevice()
+            toggleMicrophoneButton.setOnClickListener{
+                setupMicToggleClicked()
+            }
+            remoteView.visibility = View.INVISIBLE
             if(!isMonitor) {
                 //Views for watcher
                 monitorTitleTv.text = "Watching Device $monitorDevice"
+                toggleMonitorCamera.setOnClickListener{
+                    mainServiceRepository.sendSwitchMonitorCamera()
+                }
                 endMonitorButton.setOnClickListener{
                     mainServiceRepository.sendEndStreaming()
                     removeWatcher()
@@ -84,6 +103,9 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
                 mainServiceRepository.sendStartWatching(monitorDevice!!)
             } else {
                 //Views for monitor
+                toggleMonitorCamera.setOnClickListener{
+                    mainServiceRepository.switchCamera()
+                }
                 monitorTitleTv.text = "Monitoring on $monitorDevice"
                 endMonitorButton.setOnClickListener{
                     mainServiceRepository.sendEndStreaming()
@@ -91,66 +113,22 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
                 }
             }
         }
-        // Old code
-//        if(isMonitor) {
-//            startMyService(monitorDevice!!)
-//            MainService.listener = this
-//            mainRepository.initWebrtcClient(monitorDevice!!)
-//            views.apply {
-//                localViewRenderer = localView
-//                remoteViewRenderer = remoteView
-//                MainService.remoteSurfaceView = remoteViewRenderer
-//                MainService.localSurfaceView = localViewRenderer
-//                mainServiceRepository.setUpViews(monitorDevice!!,userId!!)
-//
-//            }
-//        } else {
-//            currentDevice = mainRepository.getCurrentDevice()
-////            startMyService(currentDevice!!)
-//            MainService.listener = this
-//            mainRepository.initWebrtcClient(currentDevice!!)
-//            views.apply {
-//                localViewRenderer = localView
-//                remoteViewRenderer = remoteView
-//                MainService.remoteSurfaceView = remoteViewRenderer
-//                MainService.localSurfaceView = localViewRenderer
-//                mainServiceRepository.setUpViews(monitorDevice!!,userId!!)
-//
-//            }
-//            mainRepository.setIsMonitor(false)
-//            mainRepository.listener = this
-//            mainRepository.initFirebase()
-//            mainRepository.setTarget(monitorDevice!!)
-//            mainRepository.initWebrtcClient(currentDevice!!)
-//            views.apply {
-//                localViewRenderer = localView
-//                remoteViewRenderer = remoteView
-//                mainRepository.initLocalSurfaceView(localViewRenderer!!, isMonitor)
-                // only for debugging isMonitor = true , to video call the 2 devices
-//                mainRepository.initLocalSurfaceView(localViewRenderer!!, true)
-//                mainRepository.initRemoteSurfaceView(remoteViewRenderer!!)
-//                monitorTitleTv.text = "Monitoring on Device $monitorDevice"
-//                endMonitorButton.setOnClickListener{
-//                    removeWatcher()
-//                }
-//            }
-//            mainRepository.sendStartWatching()
-//        }
-
-
     }
 
-//    override fun onLatestEventReceived(data: DataModel) {
-//        if(data.type == DataModelType.EndMonitoring) {
-//            removeWatcher()
-//        } else if(data.type == DataModelType.EndWatching){
-//            remoteViewRenderer?.clearImage()
-//            remoteViewRenderer?.release()
-//            remoteViewRenderer = null
-//            mainRepository.closeWebRTCConnection()
-//            mainRepository.initWebrtcClient(monitorDevice!!)
-//        }
-//    }
+    private fun setupMicToggleClicked(){
+        views.apply {
+            toggleMicrophoneButton.setOnClickListener {
+                if (!isMicrophoneMuted){
+                    mainServiceRepository.toggleAudio(true)
+                    toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_on)
+                }else{
+                    mainServiceRepository.toggleAudio(false)
+                    toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_off)
+                }
+                isMicrophoneMuted = !isMicrophoneMuted
+            }
+        }
+    }
 
     private fun setupToggleAudioDevice(){
 //        views.apply {  }
@@ -171,23 +149,16 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         mainServiceRepository.startService(userId!!,currentDevice!!, isMonitor)
     }
 
+    override fun onSwitchCameraReceived() {
+        mainServiceRepository.switchCamera()
+    }
 
     override fun onEndMonitoringReceived() {
         removeWatcher()
     }
     override fun onEndWatchingReceived() {
-        MainService.remoteSurfaceView?.clearImage()
-        MainService.remoteSurfaceView?.release()
-        MainService.remoteSurfaceView = null
-        MainService.localSurfaceView?.clearImage()
-        MainService.localSurfaceView?.release()
-        MainService.localSurfaceView = null
-
-        mainRepository.closeWebRTCConnection()
-        mainRepository.initWebrtcClient(currentDevice!!)
-        MainService.localSurfaceView = localViewRenderer
-        MainService.remoteSurfaceView = remoteViewRenderer
-        mainServiceRepository.setUpViews(currentDevice!!,userId!!)
+        remoteViewRenderer?.clearImage()
+        mainRepository.resetTarget()
     }
 
     override fun onWatchRequestReceived(model: DataModel) {
@@ -195,12 +166,17 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         mainRepository.sendConnectionRequest()
     }
 
+
+    private fun Context.dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
+    }
+
+
     private fun removeWatcher() {
         mainRepository.removeWatcher(){isDone,reason ->
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                removeData()
                 moveToMainActivity()
                 finish()
             }
@@ -212,7 +188,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                removeData()
                 moveToMainActivity()
                 finish()
             }
@@ -224,6 +199,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     }
 
     private fun removeData() {
+            mainServiceRepository.toggleAudio(true)
             MainService.remoteSurfaceView?.release()
             MainService.remoteSurfaceView = null
             MainService.localSurfaceView?.release()
@@ -233,8 +209,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
     override fun onDestroy() {
         super.onDestroy()
-        if(isFinishing) {
-            removeData()
-        }
+        removeData()
     }
 }

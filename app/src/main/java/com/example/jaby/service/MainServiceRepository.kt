@@ -49,6 +49,12 @@ class MainServiceRepository @Inject constructor(
         startServiceIntent(intent)
     }
 
+    fun sendSwitchMonitorCamera() {
+        val intent = Intent(context,MainService::class.java)
+        intent.action = MainServiceActions.SEND_SWITCH_CAMERA.name
+        startServiceIntent(intent)
+    }
+
     fun sendStartWatching(target: String) {
         val intent = Intent(context,MainService::class.java)
         intent.apply {

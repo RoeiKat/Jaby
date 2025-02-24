@@ -213,6 +213,17 @@ class MainRepository @Inject constructor(
         webRTCClient.closeConnection()
     }
 
+    fun sendSwitchMonitorCamera(){
+        if(target !== null) {
+            onTransferEventToSocket(
+                DataModel(
+                    type = DataModelType.SwitchMonitorCamera,
+                    target = target!!
+                )
+            )
+        }
+    }
+
     fun sendEndWatching(){
         firebaseClient.sendMessageToOtherClient(
             DataModel(
@@ -242,7 +253,7 @@ class MainRepository @Inject constructor(
         }
     }
 
-    private fun resetTarget() {
+    fun resetTarget() {
         this.target = null
     }
 

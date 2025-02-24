@@ -212,9 +212,9 @@ class WebRTCClient @Inject constructor(
         localStream = peerConnectionFactory.createLocalMediaStream(localStreamId)
         if(isMonitor) {
             // Enable to disable camera for not monitor device
-//            startCapturingCamera(localView)
+            startCapturingCamera(localView)
         }
-        startCapturingCamera(localView)
+//        startCapturingCamera(localView)
         localAudioTrack = peerConnectionFactory.createAudioTrack(localTrackId + "_audio", localAudioSource)
         localStream?.addTrack(localAudioTrack)
         peerConnection?.addStream(localStream)
