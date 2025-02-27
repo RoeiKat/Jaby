@@ -118,12 +118,12 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     private fun setupMicToggleClicked(){
         views.apply {
             toggleMicrophoneButton.setOnClickListener {
-                if (!isMicrophoneMuted){
+                if (isMicrophoneMuted){
                     mainServiceRepository.toggleAudio(true)
-                    toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_on)
+                    toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_off)
                 }else{
                     mainServiceRepository.toggleAudio(false)
-                    toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_off)
+                    toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_on)
                 }
                 isMicrophoneMuted = !isMicrophoneMuted
             }
@@ -177,6 +177,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
+                mainServiceRepository.toggleAudio(true)
                 moveToMainActivity()
                 finish()
             }
@@ -188,6 +189,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
+                mainServiceRepository.toggleAudio(true)
                 moveToMainActivity()
                 finish()
             }
@@ -199,7 +201,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     }
 
     private fun removeData() {
-            mainServiceRepository.toggleAudio(true)
             MainService.remoteSurfaceView?.release()
             MainService.remoteSurfaceView = null
             MainService.localSurfaceView?.release()

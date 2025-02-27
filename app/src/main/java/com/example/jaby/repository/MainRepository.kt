@@ -214,7 +214,7 @@ class MainRepository @Inject constructor(
     }
 
     fun sendSwitchMonitorCamera(){
-        if(target !== null) {
+        if(!target.isNullOrEmpty()) {
             onTransferEventToSocket(
                 DataModel(
                     type = DataModelType.SwitchMonitorCamera,
@@ -225,25 +225,29 @@ class MainRepository @Inject constructor(
     }
 
     fun sendEndWatching(){
-        firebaseClient.sendMessageToOtherClient(
-            DataModel(
-                type = DataModelType.EndWatching,
-                target = target!!
-            )
-        ){}
+        if(!target.isNullOrEmpty()){
+            firebaseClient.sendMessageToOtherClient(
+                DataModel(
+                    type = DataModelType.EndWatching,
+                    target = target!!
+                )
+            ){}
+        }
     }
 
     fun sendStartWatching(){
-        firebaseClient.sendMessageToOtherClient(
-            DataModel(
-                type = DataModelType.StartWatching,
-                target = target!!
-            )
-        ){}
+        if(!target.isNullOrEmpty()){
+            firebaseClient.sendMessageToOtherClient(
+                DataModel(
+                    type = DataModelType.StartWatching,
+                    target = target!!
+                )
+            ){}
+        }
     }
 
     fun sendEndMonitoring(){
-        if(target !== null) {
+        if(!target.isNullOrEmpty()) {
             onTransferEventToSocket(
                 DataModel(
                     type = DataModelType.EndMonitoring,

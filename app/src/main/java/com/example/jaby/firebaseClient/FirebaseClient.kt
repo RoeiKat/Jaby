@@ -147,7 +147,7 @@ class FirebaseClient @Inject constructor(
     }
 
     fun sendMessageToOtherClient(message:DataModel, success:(Boolean) -> Unit) {
-        if (message.target == currentDevice) {
+        if (message.target == currentDevice || message.target.isNullOrEmpty()) {
             success(false)
             return
         }

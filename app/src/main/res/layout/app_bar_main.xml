@@ -26,9 +26,9 @@
         android:id="@+id/startMonitoringFAB"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_gravity="bottom|center"
         android:layout_marginBottom="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_monitor_add" />
+        android:src="@drawable/ic_monitor_add"
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

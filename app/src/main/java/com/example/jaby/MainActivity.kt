@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
         views = ActivityMainBinding.inflate(layoutInflater)
         setContentView(views.root)
 
-        setSupportActionBar(views.appBarMain.toolbar)
+//        setSupportActionBar(views.appBarMain.toolbar)
 
         views.appBarMain.startMonitoringFAB.setOnClickListener { _ ->
             val builder = AlertDialog.Builder(this)
@@ -94,20 +94,20 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             }
             builder.show()
         }
-        val drawerLayout: DrawerLayout = views.drawerLayout
-        val navView: NavigationView = views.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
+//        val drawerLayout: DrawerLayout = views.drawerLayout
+//        val navView: NavigationView = views.navView
+//        val navController = findNavController(R.id.nav_host_fragment_content_main)
 
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
-            ), drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+//        appBarConfiguration = AppBarConfiguration(
+//            setOf(
+//                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+//            ), drawerLayout
+//        )
+//        setupActionBarWithNavController(navController, appBarConfiguration)
+//        navView.setupWithNavController(navController)
         homeFragment = getHomeFragment()
 
         val permissionsNeeded = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
