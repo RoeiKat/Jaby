@@ -99,7 +99,7 @@ class MainService: Service(),MainRepository.Listener {
             mainRepository.sendEndWatching()
         }
         //2. End our monitor process and restart our webrtc client
-        endMonitoringAndRestartRepository()
+//        endMonitoringAndRestartRepository()
     }
 
     private fun endMonitoringAndRestartRepository() {

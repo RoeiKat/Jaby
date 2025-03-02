@@ -29,6 +29,9 @@
         android:layout_gravity="bottom|center"
         android:layout_marginBottom="@dimen/fab_margin"
         android:src="@drawable/ic_monitor_add"
+        android:backgroundTint="@color/color_primary"
+        app:tint="@null"
         />
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

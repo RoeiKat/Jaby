@@ -35,4 +35,5 @@
     <string name="app_logo">jaby_app_logo</string>
     <string name="resend">Resend</string>
     <string name="verification_msg">Now let\'s verify your account, we\'ve sent you a verification E-mail\nPlease check your E-mail and verify</string>
+    <string name="app_icon_desc">jaby</string>
 </resources>
