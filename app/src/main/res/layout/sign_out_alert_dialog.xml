@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/customDialogRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="24dp"
+    >
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Are you sure you want to sign out?"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:paddingBottom="16dp"/>
+
+    <!-- Message -->
+    <TextView
+        android:id="@+id/dialogMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This action will log you out."
+        android:paddingBottom="24dp"/>
+
+    <!-- Button Panel -->
+    <LinearLayout
+        android:id="@+id/customButtonPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Negative Button with custom background (e.g. bottom-left rounded) -->
+        <Button
+            android:id="@+id/negativeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/button_alert_dialog_style"
+            android:text="Cancel"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:textColor="@color/color_white" />
+
+        <!-- Positive Button with custom background (e.g. bottom-right rounded) -->
+        <Button
+            android:id="@+id/positiveButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/dialog_positive_button_background"
+            android:text="Sign Out"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:textColor="@color/color_red" />
+    </LinearLayout>
+
+</LinearLayout>

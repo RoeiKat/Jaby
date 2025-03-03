@@ -7,11 +7,9 @@ import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
-import android.view.Gravity
 import android.view.Menu
-import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.findNavController
@@ -91,54 +89,39 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             }
             builder.show()
         }
+        signOutBtn.setOnClickListener {
+            // Inflate the custom layout from sign_out_alert_dialog.xml
+            val dialogView = layoutInflater.inflate(R.layout.sign_out_alert_dialog, null)
 
-        signOutBtn.setOnClickListener { _ ->
-            val builder = AlertDialog.Builder(this,R.style.sign_out_alert_dialog_theme)
-            builder.setTitle("Are you sure you want to Sign out?")
-            builder.setPositiveButton("Sign Out") { dialog, _ ->
-                signOut()
-            }
-            builder.setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel()
-            }
+            // Create the AlertDialog using only your custom view.
+            val dialog = AlertDialog.Builder(this,R.style.sign_out_alert_dialog_theme)
+                .setView(dialogView)
+                .create()
 
-            val dialog = builder.show()
+            // Show the dialog first so that its view hierarchy is created.
+            dialog.show()
 
-            // Access the dialog buttons.
-            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+            // Find your custom buttons in the inflated view.
+            val negativeButton = dialogView.findViewById<Button>(R.id.negativeButton)
+            val positiveButton = dialogView.findViewById<Button>(R.id.positiveButton)
 
-            // Apply the custom background drawable.
-            positiveButton.setBackgroundResource(R.drawable.dialog_positive_button_background)
-            negativeButton.setBackgroundResource(R.drawable.dialog_negative_button_background)
-
-            positiveButton.backgroundTintList = null
-            negativeButton.backgroundTintList = null
-
-            // Set the text color to white.
-            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.color_red))
-            negativeButton.setTextColor(ContextCompat.getColor(this, R.color.color_white))
-
-            // Make sure the parent layout is a LinearLayout, then force full-width layout
-            (positiveButton.parent as? LinearLayout)?.apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.FILL_HORIZONTAL
-                layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+            // Set your click listeners.
+            negativeButton.setOnClickListener {
+                dialog.dismiss()
             }
 
-            // Give each button equal weight so they share the full width
-            (positiveButton.layoutParams as? LinearLayout.LayoutParams)?.apply {
-                width = 0
-                weight = 1f
-                positiveButton.layoutParams = this
-            }
-
-            (negativeButton.layoutParams as? LinearLayout.LayoutParams)?.apply {
-                width = 0
-                weight = 1f
-                negativeButton.layoutParams = this
+            positiveButton.setOnClickListener {
+                signOut()  // Your sign-out logic here.
+                dialog.dismiss()
             }
         }
+
+
+
+
+
+
+
 
 
 //        val drawerLayout: DrawerLayout = views.drawerLayout
