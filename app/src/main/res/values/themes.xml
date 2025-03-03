@@ -7,7 +7,9 @@
         <item name="colorSecondary">@color/color_secondary</item>
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
+<!--        <item name="android:statusBarColor">@android:color/transparent</item>-->
+        <item name="android:statusBarColor">@color/background_color</item>
+
         <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/background_color</item>
 
@@ -18,9 +20,10 @@
     <style name="Theme.Jaby.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>a
+    </style>
 
     <style name="Theme.Jaby.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Jaby.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>

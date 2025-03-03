@@ -177,7 +177,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                mainServiceRepository.toggleAudio(true)
                 mainRepository.closeWebRTCConnection()
                 moveToMainActivity()
                 finish()
@@ -190,7 +189,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                mainServiceRepository.toggleAudio(true)
                 mainRepository.closeWebRTCConnection()
                 moveToMainActivity()
                 finish()

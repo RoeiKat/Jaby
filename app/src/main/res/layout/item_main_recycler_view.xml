@@ -20,7 +20,7 @@
     android:padding="16dp">
 
     <ImageView
-        android:id="@+id/loanIcon"
+        android:id="@+id/icon"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:contentDescription="@string/app_icon_desc"
@@ -29,80 +29,66 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/loanTitle"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="Dana Kilat"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text=""
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-        android:textColor="@android:color/black"
-        app:layout_constraintBottom_toBottomOf="@id/loanIcon"
-        app:layout_constraintStart_toEndOf="@id/loanIcon"
-        app:layout_constraintTop_toTopOf="@id/loanIcon" />
-
-    <com.google.android.material.chip.Chip
-        android:id="@+id/interestChip"
-        style="@style/Widget.MaterialComponents.Chip.Filter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="Low interest rates"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        app:chipCornerRadius="8dp"
-        app:chipBackgroundColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="@id/loanTitle"
-        app:layout_constraintStart_toEndOf="@id/loanTitle"
-        app:layout_constraintTop_toTopOf="@id/loanTitle" />
+        android:textColor="@color/color_white"
+        app:layout_constraintBottom_toBottomOf="@id/icon"
+        app:layout_constraintStart_toEndOf="@id/icon"
+        app:layout_constraintTop_toTopOf="@id/icon" />
 
     <TextView
-        android:id="@+id/loanAmount"
+        android:id="@+id/deviceNameTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="₦100,000"
+        android:text="Device Name"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-        android:textColor="@android:color/black"
-        android:paintFlags="strikeThruText|antiAlias"
+        android:textColor="@color/color_white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loanIcon" />
+        app:layout_constraintTop_toBottomOf="@id/icon" />
 
     <TextView
-        android:id="@+id/loanSubtitle"
+        android:id="@+id/statusTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Current amount"
+        android:text="STATUS"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
         android:textColor="@android:color/darker_gray"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loanAmount" />
+        app:layout_constraintTop_toBottomOf="@id/deviceNameTv" />
 
     <TextView
-        android:id="@+id/loanPeriod"
+        android:id="@+id/tv1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="91 days Period"
+        android:text=""
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loanSubtitle" />
+        app:layout_constraintTop_toBottomOf="@id/statusTv" />
 
     <TextView
-        android:id="@+id/loanInterest"
+        android:id="@+id/tv2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Interest ≥ 0.7%/day"
+        android:text=""
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
         android:textColor="@android:color/black"
-        app:layout_constraintBaseline_toBaselineOf="@id/loanPeriod"
-        app:layout_constraintStart_toEndOf="@id/loanPeriod" />
+        app:layout_constraintBaseline_toBaselineOf="@id/tv1"
+        app:layout_constraintStart_toEndOf="@id/tv1" />
 
     <Button
-        android:id="@+id/applyNowBtn"
+        android:id="@+id/watchNowBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

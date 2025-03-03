@@ -20,6 +20,25 @@
         <item name="textAllCaps">false</item>
     </style>
 
+    <style name="toolbar_title_text" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:fontFamily">@font/playwrite_it_moderna</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/color_white</item>
+    </style>
+
+
+    <!-- Custom AlertDialog theme using AppCompat -->
+    <style name="sign_out_alert_dialog_theme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <!-- Custom dialog background -->
+        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <!-- Override the default button style -->
+        <!-- Other text appearances if needed -->
+    </style>
+
+
+
+
 
 
 </resources>

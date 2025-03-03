@@ -31,7 +31,7 @@ class HomeFragment : Fragment(), MainRecyclerViewAdapter.Listener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -51,6 +51,14 @@ class HomeFragment : Fragment(), MainRecyclerViewAdapter.Listener {
 
     fun updateDevices(devicesList: List<Pair<String, String>>) {
         mainAdapter?.updateList(devicesList)
+
+        if (devicesList.isEmpty()) {
+            binding.mainRecyclerView.visibility = View.GONE
+            binding.emptyView.visibility = View.VISIBLE
+        } else {
+            binding.mainRecyclerView.visibility = View.VISIBLE
+            binding.emptyView.visibility = View.GONE
+        }
     }
 
 

@@ -52,7 +52,7 @@ class MainRecyclerViewAdapter(private val listener:Listener) : RecyclerView.Adap
             binding.apply {
                 when (device.second) {
                     "ONLINE" -> {
-                        monitorCard.setOnClickListener {
+                        watchNowBtn.setOnClickListener {
                             startWatchClicked.invoke(device.first)
                         }
                         statusTv.text = "Online"

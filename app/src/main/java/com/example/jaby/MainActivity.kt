@@ -7,32 +7,27 @@ import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
+import android.view.Gravity
 import android.view.Menu
+import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.NavHostFragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.jaby.adapters.MainRecyclerViewAdapter
 import com.example.jaby.databinding.ActivityMainBinding
 import com.example.jaby.repository.MainRepository
-import com.example.jaby.service.MainService
 import com.example.jaby.service.MainServiceRepository
 import com.example.jaby.ui.home.HomeFragment
 import com.example.jaby.ui.login.LoginActivity
-import com.example.jaby.utils.DataModel
-import com.example.jaby.utils.DataModelType
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -53,6 +48,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var views: ActivityMainBinding
+    private lateinit var signOutBtn: AppCompatImageButton
 
     override fun onStart() {
         super.onStart()
@@ -70,6 +66,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
         views = ActivityMainBinding.inflate(layoutInflater)
         setContentView(views.root)
+        signOutBtn = findViewById(R.id.signOutBtn)
 
 //        setSupportActionBar(views.appBarMain.toolbar)
 
@@ -94,6 +91,56 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             }
             builder.show()
         }
+
+        signOutBtn.setOnClickListener { _ ->
+            val builder = AlertDialog.Builder(this,R.style.sign_out_alert_dialog_theme)
+            builder.setTitle("Are you sure you want to Sign out?")
+            builder.setPositiveButton("Sign Out") { dialog, _ ->
+                signOut()
+            }
+            builder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+
+            val dialog = builder.show()
+
+            // Access the dialog buttons.
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+            // Apply the custom background drawable.
+            positiveButton.setBackgroundResource(R.drawable.dialog_positive_button_background)
+            negativeButton.setBackgroundResource(R.drawable.dialog_negative_button_background)
+
+            positiveButton.backgroundTintList = null
+            negativeButton.backgroundTintList = null
+
+            // Set the text color to white.
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.color_red))
+            negativeButton.setTextColor(ContextCompat.getColor(this, R.color.color_white))
+
+            // Make sure the parent layout is a LinearLayout, then force full-width layout
+            (positiveButton.parent as? LinearLayout)?.apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.FILL_HORIZONTAL
+                layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+            }
+
+            // Give each button equal weight so they share the full width
+            (positiveButton.layoutParams as? LinearLayout.LayoutParams)?.apply {
+                width = 0
+                weight = 1f
+                positiveButton.layoutParams = this
+            }
+
+            (negativeButton.layoutParams as? LinearLayout.LayoutParams)?.apply {
+                width = 0
+                weight = 1f
+                negativeButton.layoutParams = this
+            }
+        }
+
+
 //        val drawerLayout: DrawerLayout = views.drawerLayout
 //        val navView: NavigationView = views.navView
 //        val navController = findNavController(R.id.nav_host_fragment_content_main)

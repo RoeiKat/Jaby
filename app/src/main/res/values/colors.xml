@@ -13,6 +13,7 @@
     <color name="color_white">#F2F7F2</color>
     <color name="color_primary">#1CE481</color>
     <color name="color_secondary">#2D2C2D</color>
+    <color name="color_red">#DA2C38</color>
     <color name="color_border">#323232</color>
     <color name="et_pressed_color">#026946</color>
     <color name="et_focused_color">#1CE481</color>
