@@ -64,6 +64,7 @@ class FirebaseClient @Inject constructor(
                 watchersRef.child(currentDevice!!)
                     .removeValue()
                     .addOnCompleteListener{
+                        setCurrentDevice(null)
                         done(true,null)
                     }
                     .addOnFailureListener{
@@ -146,6 +147,35 @@ class FirebaseClient @Inject constructor(
         this.currentUserId = userId
     }
 
+    fun sendEndMonitoringToSelf(success:(Boolean) -> Unit) {
+        if(currentDevice.isNullOrEmpty()) return
+        val message = DataModel(
+            type = DataModelType.EndMonitoring,
+            target = currentDevice!!
+        )
+        val field = FirebaseFieldNames.WATCHERS
+        val targetRef = dbRef.child(FirebaseFieldNames.USERS)
+            .child(currentUserId!!)
+            .child(field)
+            .child(message.target)
+        targetRef.addListenerForSingleValueEvent(object : MyEventListener() {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val convertedMessage = gson.toJson(message.copy(sender = currentDevice))
+                    targetRef.child(FirebaseFieldNames.LATEST_EVENT)
+                        .setValue(convertedMessage)
+                        .addOnCompleteListener {
+                            success(true)
+                        }
+                        .addOnFailureListener {
+                            success(false)
+                        }
+                } else {
+                    success(false)
+                }
+            }})
+    }
+
     fun sendMessageToOtherClient(message:DataModel, success:(Boolean) -> Unit) {
         if (message.target == currentDevice || message.target.isNullOrEmpty()) {
             success(false)
@@ -183,6 +213,7 @@ class FirebaseClient @Inject constructor(
                             .child(FirebaseFieldNames.DEVICES).child(deviceName)
                             .removeValue()
                             .addOnCompleteListener{
+                                setCurrentDevice(null)
                                 done(true,null)
                             }.addOnFailureListener{
                                 done(false,it.message)

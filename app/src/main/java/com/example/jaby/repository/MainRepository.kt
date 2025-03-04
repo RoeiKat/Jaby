@@ -35,9 +35,11 @@ class MainRepository @Inject constructor(
     private var userId:String? = null
     private var target:String? = null
 
+    private var isMonitor = false
     private var remoteView:SurfaceViewRenderer?=null
 
     fun setIsMonitor(isMonitor: Boolean) {
+        this.isMonitor = isMonitor
         firebaseClient.setIsMonitor(isMonitor)
     }
 
@@ -189,6 +191,10 @@ class MainRepository @Inject constructor(
                     // changeDeviceStatus(DeviceStatus.IN_STREAM)
                     //2.clear latest event inside my user section in firebase database
                     firebaseClient.clearLatestEvent()
+                } else if(newState == PeerConnection.PeerConnectionState.DISCONNECTED) {
+                    if(!isMonitor) {
+                        sendEndMonitoringToSelf()
+                    }
                 }
             }
         })
@@ -282,6 +288,10 @@ class MainRepository @Inject constructor(
                 )
             )
         }
+    }
+
+    private fun sendEndMonitoringToSelf(){
+        firebaseClient.sendEndMonitoringToSelf(){}
     }
 
     fun resetTarget() {

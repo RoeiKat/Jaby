@@ -265,7 +265,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
 
     private fun signOut() {
-        mAuth.signOut()
+        mainRepository.signOut()
         intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()

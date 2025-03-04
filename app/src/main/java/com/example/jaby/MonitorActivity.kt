@@ -246,7 +246,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                mainRepository.closeWebRTCConnection()
                 moveToMainActivity()
                 finish()
             }
@@ -258,7 +257,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                mainRepository.closeWebRTCConnection()
                 moveToMainActivity()
                 finish()
             }
@@ -270,12 +268,14 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     }
 
     private fun removeData() {
-            MainService.remoteSurfaceView?.release()
-            MainService.remoteSurfaceView = null
-            MainService.localSurfaceView?.release()
-            MainService.localSurfaceView = null
-            endMyService()
+        mainRepository.closeWebRTCConnection()
+        MainService.remoteSurfaceView?.release()
+        MainService.remoteSurfaceView = null
+        MainService.localSurfaceView?.release()
+        MainService.localSurfaceView = null
+        endMyService()
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
