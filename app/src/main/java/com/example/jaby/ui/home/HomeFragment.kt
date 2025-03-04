@@ -50,8 +50,9 @@ class HomeFragment : Fragment(), MainRecyclerViewAdapter.Listener {
 
 
     fun updateDevices(devicesList: List<Pair<String, String>>) {
-        mainAdapter?.updateList(devicesList)
+        if (_binding == null) return
 
+        mainAdapter?.updateList(devicesList)
         if (devicesList.isEmpty()) {
             binding.mainRecyclerView.visibility = View.GONE
             binding.emptyView.visibility = View.VISIBLE
@@ -64,6 +65,10 @@ class HomeFragment : Fragment(), MainRecyclerViewAdapter.Listener {
 
     override fun onStartWatchClicked(deviceName: String) {
         (activity as? MainActivity)?.onStartWatchClicked(deviceName)
+    }
+
+    override fun onCloseMonitorClicked(deviceName: String) {
+        (activity as? MainActivity)?.onCloseMonitorClicked(deviceName)
     }
 
     override fun onDestroyView() {

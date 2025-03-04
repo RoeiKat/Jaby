@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.Menu
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.findNavController
@@ -69,41 +70,21 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 //        setSupportActionBar(views.appBarMain.toolbar)
 
         views.appBarMain.startMonitoringFAB.setOnClickListener { _ ->
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("Enter Device Name")
-            val input = EditText(this)
-            input.hint = "Device Name"
-            input.inputType = InputType.TYPE_CLASS_TEXT
-            builder.setView(input)
-
-            builder.setPositiveButton("Add Device!") { dialog, _ ->
-                val deviceName = input.text.toString().trim()
-                if (deviceName.isNotEmpty()) {
-                    addDevice(deviceName)
-                } else {
-                    Toast.makeText(this, "Please enter a device name.", Toast.LENGTH_SHORT).show()
-                }
-            }
-            builder.setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel()
-            }
-            builder.show()
-        }
-        signOutBtn.setOnClickListener {
-            // Inflate the custom layout from sign_out_alert_dialog.xml
-            val dialogView = layoutInflater.inflate(R.layout.sign_out_alert_dialog, null)
+            val dialogView = layoutInflater.inflate(R.layout.new_device_alert_dialog, null)
 
             // Create the AlertDialog using only your custom view.
             val dialog = AlertDialog.Builder(this,R.style.sign_out_alert_dialog_theme)
                 .setView(dialogView)
                 .create()
 
-            // Show the dialog first so that its view hierarchy is created.
             dialog.show()
 
-            // Find your custom buttons in the inflated view.
             val negativeButton = dialogView.findViewById<Button>(R.id.negativeButton)
             val positiveButton = dialogView.findViewById<Button>(R.id.positiveButton)
+            val dialogInput = dialogView.findViewById<EditText>(R.id.dialogInput)
+
+            negativeButton.backgroundTintList = null
+            positiveButton.backgroundTintList = null
 
             // Set your click listeners.
             negativeButton.setOnClickListener {
@@ -111,19 +92,39 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             }
 
             positiveButton.setOnClickListener {
-                signOut()  // Your sign-out logic here.
+                val deviceName = dialogInput.text.toString().trim()
+                if (deviceName.isNotEmpty()) {
+                    addDevice(deviceName)
+                    dialog.dismiss()
+                } else {
+                    Toast.makeText(this, "Please enter a device name.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        signOutBtn.setOnClickListener {
+            val dialogView = layoutInflater.inflate(R.layout.sign_out_alert_dialog, null)
+
+            val dialog = AlertDialog.Builder(this,R.style.sign_out_alert_dialog_theme)
+                .setView(dialogView)
+                .create()
+
+            dialog.show()
+
+            val negativeButton = dialogView.findViewById<Button>(R.id.negativeButton)
+            val positiveButton = dialogView.findViewById<Button>(R.id.positiveButton)
+
+            negativeButton.backgroundTintList = null
+            positiveButton.backgroundTintList = null
+
+            negativeButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            positiveButton.setOnClickListener {
+                signOut()
                 dialog.dismiss()
             }
         }
-
-
-
-
-
-
-
-
-
 //        val drawerLayout: DrawerLayout = views.drawerLayout
 //        val navView: NavigationView = views.navView
 //        val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -214,6 +215,35 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
             } else {
                 Toast.makeText(this, "$reason", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    override fun onCloseMonitorClicked(deviceName: String) {
+
+        val dialogView = layoutInflater.inflate(R.layout.close_device_alert_dialog, null)
+
+        val dialog = AlertDialog.Builder(this,R.style.sign_out_alert_dialog_theme)
+            .setView(dialogView)
+            .create()
+
+        dialog.show()
+
+        val negativeButton = dialogView.findViewById<Button>(R.id.negativeButton)
+        val positiveButton = dialogView.findViewById<Button>(R.id.positiveButton)
+        val dialogTitle = dialogView.findViewById<TextView>(R.id.dialogTitle)
+
+        dialogTitle.text = "You're about to close the Monitor: $deviceName"
+
+        negativeButton.backgroundTintList = null
+        positiveButton.backgroundTintList = null
+
+        negativeButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        positiveButton.setOnClickListener {
+            mainRepository.sendCloseMonitor(deviceName)
+            dialog.dismiss()
         }
     }
 

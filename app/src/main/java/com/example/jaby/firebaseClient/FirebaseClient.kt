@@ -353,27 +353,25 @@ class FirebaseClient @Inject constructor(
             .addOnFailureListener { done(false, it.message) }
     }
 
-    fun login(email:String, password: String, done: (Boolean,String?) -> Unit) {
+    fun login(email: String, password: String, done: (Boolean, String?) -> Unit) {
         if (email.isEmpty() || password.isEmpty()) {
             done(false, "Email and password cannot be empty")
             return
         }
-        mAuth.signInWithEmailAndPassword(email,password).addOnCompleteListener{
-                task ->
-            if(task.isSuccessful) {
-                val userId = mAuth.currentUser?.uid
-                if(userId != null) {
-                    setCurrentUserId(userId)
-                    done(true, null)
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userId = mAuth.currentUser?.uid
+                    if (userId != null) {
+                        setCurrentUserId(userId)
+                        done(true, null)
+                    } else {
+                        done(false, "The Email or Password you entered is incorrect. Please try again")
+                    }
                 } else {
-                    done(false, "The Email or Password you entered is incorrect. Please try again")
+                    done(false, "The Email or Password you entered is incorrect. Please try again.")
                 }
-            } else {
-                done(false, "The Email or Password you entered is incorrect. Please try again.")
             }
-        }.addOnFailureListener{
-            done(false, it.message)
-        }
     }
 
     fun changeDeviceStatus(status: DeviceStatus) {

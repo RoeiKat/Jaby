@@ -6,6 +6,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -31,15 +33,25 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
     //Used by watching device
     private var monitorDevice:String?=null
+    private var isMonitorMicrophoneMuted = true
     //Used by both devices
     private var userId:String?=null
     private var isMonitor:Boolean = false
     private var currentDevice:String?=null
     private var isEarSpeakerMode = false
-    private var isMicrophoneMuted = false
+    private var isMicrophoneMuted = true
     //Surface view renderers
     private var remoteViewRenderer: SurfaceViewRenderer? = null
     private var localViewRenderer: SurfaceViewRenderer? = null
+
+
+    //Blink animation for record img
+    private val blinkAnimation = AlphaAnimation(0.0f, 1.0f).apply {
+        duration = 500
+        startOffset = 20
+        repeatMode = Animation.REVERSE
+        repeatCount = Animation.INFINITE
+    }
 
     private lateinit var views:ActivityMonitorBinding
 
@@ -84,11 +96,15 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
                 MainService.remoteSurfaceView = localViewRenderer
             }
             mainServiceRepository.setUpViews(currentDevice!!,userId!!)
+
             setupToggleAudioDevice()
-            toggleMicrophoneButton.setOnClickListener{
-                setupMicToggleClicked()
-            }
+
+            setupMonitorAudioToggleClicked()
+
+            setupMicToggleClicked()
+
             remoteView.visibility = View.INVISIBLE
+            monitorRecordImg.startAnimation(blinkAnimation)
             if(!isMonitor) {
                 //Views for watcher
                 monitorTitleTv.text = "Watching Device $monitorDevice"
@@ -113,10 +129,47 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
                 }
             }
         }
+
+    }
+
+    private fun setupMonitorAudioToggleClicked(){
+        views.apply {
+            if (isMonitor) {
+                toggleMonitorMicrophoneButton.visibility = View.GONE
+            } else {
+                if(isMonitorMicrophoneMuted) {
+                    toggleMonitorMicrophoneButton.setImageResource(R.drawable.ic_speaker_on)
+                } else {
+                    toggleMonitorMicrophoneButton.setImageResource(R.drawable.ic_speaker_off)
+                }
+                isMonitorMicrophoneMuted = !isMonitorMicrophoneMuted
+                // Button Setup
+                toggleMonitorMicrophoneButton.setOnClickListener {
+                    if (isMonitorMicrophoneMuted){
+                        mainServiceRepository.sendToggleMonitorMicrophoneOn()
+                        toggleMonitorMicrophoneButton.setImageResource(R.drawable.ic_speaker_on)
+                    }else{
+                        mainServiceRepository.sendToggleMonitorMicrophoneOff()
+                        toggleMonitorMicrophoneButton.setImageResource(R.drawable.ic_speaker_off)
+                    }
+                    isMonitorMicrophoneMuted = !isMonitorMicrophoneMuted
+                    }
+                }
+            }
     }
 
     private fun setupMicToggleClicked(){
         views.apply {
+            //Init
+            if(isMicrophoneMuted) {
+                mainServiceRepository.toggleAudio(true)
+                toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_off)
+            } else {
+                mainServiceRepository.toggleAudio(false)
+                toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_on)
+            }
+            isMicrophoneMuted = !isMicrophoneMuted
+            // Button setup
             toggleMicrophoneButton.setOnClickListener {
                 if (isMicrophoneMuted){
                     mainServiceRepository.toggleAudio(true)
@@ -149,6 +202,22 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         mainServiceRepository.startService(userId!!,currentDevice!!, isMonitor)
     }
 
+    override fun onToggleMonitorAudioOnReceived() {
+        views.apply {
+            mainServiceRepository.toggleAudio(false)
+            toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_on)
+            isMicrophoneMuted = true
+        }
+    }
+
+    override fun onToggleMonitorAudioOffReceived() {
+        views.apply {
+            mainServiceRepository.toggleAudio(true)
+            toggleMicrophoneButton.setImageResource(R.drawable.ic_microphone_off)
+            isMicrophoneMuted = false
+        }
+    }
+
     override fun onSwitchCameraReceived() {
         mainServiceRepository.switchCamera()
     }
@@ -161,14 +230,14 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         mainRepository.resetTarget()
     }
 
+    override fun closeMonitorReceived() {
+        mainServiceRepository.sendEndStreaming()
+        removeDevice()
+    }
+
     override fun onWatchRequestReceived(model: DataModel) {
         mainRepository.setTarget(model.sender!!)
         mainRepository.sendConnectionRequest()
-    }
-
-
-    private fun Context.dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
     }
 
 

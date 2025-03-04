@@ -63,14 +63,25 @@ class MainService: Service(),MainRepository.Listener {
                 MainServiceActions.SWITCH_CAMERA.name -> handleSwitchCamera()
                 MainServiceActions.TOGGLE_AUDIO.name -> handleToggleAudio(incomingIntent)
                 MainServiceActions.SEND_SWITCH_CAMERA.name -> handleSendSwitchCamera()
+                MainServiceActions.SEND_TOGGLE_AUDIO_ON.name -> handleSendToggleAudioOn()
+                MainServiceActions.SEND_TOGGLE_AUDIO_OFF.name -> handleSendToggleAudioOff()
                 MainServiceActions.END_STREAMING.name -> handleEndStreaming()
                 MainServiceActions.TOGGLE_AUDIO_DEVICE.name -> handleToggleAudioDevice(incomingIntent)
+
                 else -> Unit
 
             }
         }
 
         return START_STICKY
+    }
+
+    private fun handleSendToggleAudioOn() {
+        mainRepository.sendToggleAudioOn()
+    }
+
+    private fun handleSendToggleAudioOff() {
+        mainRepository.sendToggleAudioOff()
     }
 
     private fun handleSendSwitchCamera() {
@@ -114,6 +125,7 @@ class MainService: Service(),MainRepository.Listener {
 
     private fun handleToggleAudio(incomingIntent: Intent) {
         val shouldBeMuted = incomingIntent.getBooleanExtra("shouldBeMuted",true)
+        Log.d(TAG,shouldBeMuted.toString())
         mainRepository.toggleAudio(shouldBeMuted)
     }
 
@@ -181,8 +193,17 @@ class MainService: Service(),MainRepository.Listener {
                 DataModelType.EndMonitoring-> {
                     listener?.onEndMonitoringReceived()
                 }
+                DataModelType.CloseMonitor -> {
+                    listener?.closeMonitorReceived()
+                }
                 DataModelType.SwitchMonitorCamera -> {
                     listener?.onSwitchCameraReceived()
+                }
+                DataModelType.ToggleMonitorAudioOn -> {
+                    listener?.onToggleMonitorAudioOnReceived()
+                }
+                DataModelType.ToggleMonitorAudioOff -> {
+                    listener?.onToggleMonitorAudioOffReceived()
                 }
                 else -> Unit
             }
@@ -195,8 +216,11 @@ class MainService: Service(),MainRepository.Listener {
 
     interface Listener {
         fun onSwitchCameraReceived()
+        fun onToggleMonitorAudioOnReceived()
+        fun onToggleMonitorAudioOffReceived()
         fun onEndWatchingReceived()
         fun onEndMonitoringReceived()
+        fun closeMonitorReceived()
         fun onWatchRequestReceived(model:DataModel)
     }
 }

@@ -27,17 +27,17 @@
         android:background="@color/faded_black"
         app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/titleLayout">
-        <TextView
+        <ImageView
+            android:id="@+id/monitorRecordImg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:textSize="14sp"
             android:textColor="@color/white"
+            android:contentDescription="record img"
             android:padding="10dp"
-            android:id="@+id/callTimerTv"
-            android:text="00:01"
-            app:drawableStartCompat="@drawable/ic_record"
+            android:src="@drawable/ic_record"
             />
 
         <TextView
@@ -62,6 +62,14 @@
         android:background="@color/faded_black"
         app:layout_constraintBottom_toBottomOf="parent"
         android:id="@+id/controlPanelLayout">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/toggleMonitorMicrophoneButton"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_speaker_on"/>
+
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="60dp"

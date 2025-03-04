@@ -101,7 +101,6 @@ class MainRepository @Inject constructor(
         firebaseClient.subscribeForLatestEvent(object :FirebaseClient.Listener {
             override fun onLatestEventReceived(event: DataModel) {
                 listener?.onLatestEventReceived(event)
-                Log.d("EventCame", event.type.toString())
                 when(event.type) {
                     DataModelType.Offer-> {
                         webRTCClient.onRemoteSessionReceived(
@@ -110,7 +109,6 @@ class MainRepository @Inject constructor(
                                 event.data.toString()
                             )
                         )
-                        Log.d("GotToOffer", "Sending answer")
                         webRTCClient.answer(target!!)
                     }
                     DataModelType.Answer-> {
@@ -120,7 +118,6 @@ class MainRepository @Inject constructor(
                                 event.data.toString()
                             )
                         )
-                        Log.d("GotToAnswer", "Answering")
                     }
                     DataModelType.IceCandidates-> {
                         val candidate: IceCandidate? = try {
@@ -129,7 +126,6 @@ class MainRepository @Inject constructor(
                             null
                         }
                         candidate?.let {
-                            Log.d("GotToIceCandidate", "Adding $it")
                             webRTCClient.addIceCandidateToPeer(it)
                         }
                     }
@@ -181,8 +177,6 @@ class MainRepository @Inject constructor(
             override fun onIceCandidate(p0: IceCandidate?) {
                 super.onIceCandidate(p0)
                 p0?.let{
-                    Log.d("GotToOnIceCandidate_Target", target.toString())
-                    Log.d("GotToOnIceCandidate", "${it.toString()}")
                     webRTCClient.sendIceCandidate(target!!,it)
                 }
             }
@@ -213,6 +207,28 @@ class MainRepository @Inject constructor(
         webRTCClient.closeConnection()
     }
 
+    fun sendToggleAudioOn(){
+        if(!target.isNullOrEmpty()) {
+            onTransferEventToSocket(
+                DataModel(
+                    type = DataModelType.ToggleMonitorAudioOn,
+                    target = target!!
+                )
+            )
+        }
+    }
+
+    fun sendToggleAudioOff(){
+        if(!target.isNullOrEmpty()) {
+            onTransferEventToSocket(
+                DataModel(
+                    type = DataModelType.ToggleMonitorAudioOff,
+                    target = target!!
+                )
+            )
+        }
+    }
+
     fun sendSwitchMonitorCamera(){
         if(!target.isNullOrEmpty()) {
             onTransferEventToSocket(
@@ -241,6 +257,17 @@ class MainRepository @Inject constructor(
                 DataModel(
                     type = DataModelType.StartWatching,
                     target = target!!
+                )
+            ){}
+        }
+    }
+
+    fun sendCloseMonitor(deviceName: String){
+        if(deviceName.isNotEmpty()){
+            firebaseClient.sendMessageToOtherClient(
+                DataModel(
+                    type = DataModelType.CloseMonitor,
+                    target = deviceName
                 )
             ){}
         }

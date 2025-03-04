@@ -33,12 +33,15 @@ class MainRecyclerViewAdapter(private val listener:Listener) : RecyclerView.Adap
             val user = list[position]
             holder.bind(user,{
                 listener.onStartWatchClicked(it)
+            },{
+                listener.onCloseMonitorClicked(it)
             })
         }
     }
 
     interface  Listener {
         fun onStartWatchClicked(deviceName:String)
+        fun onCloseMonitorClicked(deviceName: String)
     }
 
     class MainRecyclerViewHolder(private val binding: ItemMainRecyclerViewBinding):
@@ -48,12 +51,16 @@ class MainRecyclerViewAdapter(private val listener:Listener) : RecyclerView.Adap
         fun bind(
             device:Pair<String,String>,
             startWatchClicked:(String) -> Unit,
+            closeMonitorClicked:(String) -> Unit,
         ){
             binding.apply {
                 when (device.second) {
                     "ONLINE" -> {
                         watchNowBtn.setOnClickListener {
                             startWatchClicked.invoke(device.first)
+                        }
+                        closeMonitorBtn.setOnClickListener{
+                            closeMonitorClicked.invoke(device.first)
                         }
                         statusTv.text = "Online"
                     }

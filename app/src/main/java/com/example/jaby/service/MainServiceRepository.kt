@@ -55,6 +55,18 @@ class MainServiceRepository @Inject constructor(
         startServiceIntent(intent)
     }
 
+    fun sendToggleMonitorMicrophoneOn() {
+        val intent = Intent(context,MainService::class.java)
+        intent.action = MainServiceActions.SEND_TOGGLE_AUDIO_ON.name
+        startServiceIntent(intent)
+    }
+
+    fun sendToggleMonitorMicrophoneOff() {
+        val intent = Intent(context,MainService::class.java)
+        intent.action = MainServiceActions.SEND_TOGGLE_AUDIO_OFF.name
+        startServiceIntent(intent)
+    }
+
     fun sendStartWatching(target: String) {
         val intent = Intent(context,MainService::class.java)
         intent.apply {

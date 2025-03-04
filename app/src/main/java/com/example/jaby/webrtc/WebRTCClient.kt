@@ -173,11 +173,14 @@ class WebRTCClient @Inject constructor(
         videoCapturer.switchCamera(null)
     }
     fun toggleAudio(shouldBeMuted: Boolean) {
-        if(shouldBeMuted) {
-            localStream?.removeTrack(localAudioTrack)
-        } else {
-            localStream?.addTrack(localAudioTrack)
-        }
+        //First code.
+//        if(shouldBeMuted) {
+//            localStream?.removeTrack(localAudioTrack)
+//        } else {
+//            localStream?.addTrack(localAudioTrack)
+//        }
+        //One solution yet the microphone is still in use.
+        localAudioTrack?.setEnabled(!shouldBeMuted)
     }
     fun toggleVideo(shouldBeMuted: Boolean) {
         try {

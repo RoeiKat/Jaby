@@ -3,7 +3,7 @@
     <!-- Pressed state -->
     <item android:state_pressed="true">
         <shape>
-            <solid android:color="@color/color_white" />
+            <solid android:color="@color/color_hint" />
             <corners
                 android:bottomLeftRadius="8dp"
                 android:bottomRightRadius="0dp"
@@ -14,7 +14,7 @@
     <!-- Default state -->
     <item>
         <shape>
-            <solid android:color="@color/color_white" />
+            <solid android:color="@color/color_secondary" />
             <corners
                 android:bottomLeftRadius="8dp"
                 android:bottomRightRadius="0dp"

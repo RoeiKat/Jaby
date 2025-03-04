@@ -5,14 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_margin="24dp"
-    >
+    android:layout_margin="24dp">
 
     <TextView
         android:id="@+id/dialogTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Are you sure you want to sign out?"
+        android:text="Let's Start Monitoring!"
         android:textAppearance="?attr/textAppearanceHeadline6"
         android:textColor="@color/color_white"
         android:layout_marginHorizontal="24dp"
@@ -23,11 +22,23 @@
         android:id="@+id/dialogMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="This action will sign you out from the application."
+        android:text="How would you like to call this device?"
         android:textColor="@color/color_white"
         android:layout_marginHorizontal="24dp"
         android:layout_marginVertical="12dp"
         />
+
+    <EditText
+        android:id="@+id/dialogInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter device name"
+        android:textColor="@color/color_white"
+        android:textColorHint="@color/color_white"
+        android:background="@drawable/edit_text_bottom_stroke"
+        android:padding="8dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginVertical="12dp"/>
 
     <LinearLayout
         android:id="@+id/customButtonPanel"
@@ -52,10 +63,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/dialog_positive_button_background"
-            android:text="Sign Out"
+            android:text="Add Device"
             android:textStyle="bold"
             android:textAllCaps="false"
-            android:textColor="@color/color_red" />
+            android:textColor="@color/color_primary" />
     </LinearLayout>
 
 </LinearLayout>

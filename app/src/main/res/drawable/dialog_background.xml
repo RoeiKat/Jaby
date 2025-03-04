@@ -1,13 +1,9 @@
-<!-- res/drawable/dialog_background.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <!-- Set the background color -->
     <solid android:color="@color/color_secondary" />
 
-    <!-- Set the border radius -->
     <corners android:radius="16dp" />
 
-    <!-- Optional: Add a border around the dialog -->
     <stroke
         android:width="1dp"
         android:color="@color/color_border" />
