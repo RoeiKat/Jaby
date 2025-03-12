@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".fragments.login.VerificationFragment">
 
-    <!-- Centering the content with a vertical LinearLayout -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,7 +14,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- ImageView for the verification image -->
         <ImageView
             android:id="@+id/img_verification"
             android:layout_width="200dp"
@@ -23,7 +21,6 @@
             android:src="@drawable/ic_verification"
             android:contentDescription="verification tick" />
 
-        <!-- TextView showing the waiting message -->
         <TextView
             android:id="@+id/tv_verification_message"
             android:layout_width="wrap_content"
@@ -35,7 +32,6 @@
             android:textColor="@color/color_white"
             />
 
-        <!-- TextView acting as a "Resend" button -->
         <TextView
             android:id="@+id/tv_resend"
             android:layout_width="wrap_content"

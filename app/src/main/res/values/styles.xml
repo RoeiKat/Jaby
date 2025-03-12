@@ -28,7 +28,6 @@
     </style>
 
 
-    <!-- Custom AlertDialog theme using AppCompat -->
     <style name="sign_out_alert_dialog_theme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
         <item name="android:windowBackground">@drawable/dialog_background</item>
     </style>
