@@ -84,7 +84,7 @@ class LoginActivity : AppCompatActivity() {
 
     fun signInWithGoogle() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))  // Your web client ID from the Firebase console
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
 
@@ -112,10 +112,12 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private val signInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        Log.d("GOOGLE_TAG", "GOT HERE: " + result.resultCode + " " + RESULT_OK)
         if (result.resultCode == RESULT_OK) {
             val intent = result.data
             val idToken = mainRepository.getGoogleIdTokenFromIntent(intent)
             idToken?.let {
+                Log.d("GOOGLE_TAG","GOT HERE: " + idToken)
                 mainRepository.loginWithGoogleToken(it) {
                     isDone,reason ->
                         if(!isDone) {

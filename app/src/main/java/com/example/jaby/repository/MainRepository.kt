@@ -68,6 +68,7 @@ class MainRepository @Inject constructor(
     }
 
     fun loginWithGoogleToken(googleIdToken: String, isDone: (Boolean, String?) -> Unit) {
+        Log.d("GOOGLE_TAG", googleIdToken)
         firebaseClient.loginWithGoogleToken(googleIdToken,isDone)
     }
 

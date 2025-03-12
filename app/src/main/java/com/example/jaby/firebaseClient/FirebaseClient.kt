@@ -366,6 +366,7 @@ class FirebaseClient @Inject constructor(
     }
 
     fun loginWithGoogleToken(googleIdToken: String, done: (Boolean, String?) -> Unit) {
+        Log.d("GOOGLE_TAG","GOT HERE")
         val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
         mAuth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
