@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var views: ActivityMainBinding
     private lateinit var signOutBtn: AppCompatImageButton
+    private var canMonitor = false
 
     override fun onStart() {
         super.onStart()
@@ -93,11 +94,15 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
 
             positiveButton.setOnClickListener {
                 val deviceName = dialogInput.text.toString().trim()
-                if (deviceName.isNotEmpty()) {
+                if (deviceName.isNotEmpty() && canMonitor) {
                     addDevice(deviceName)
                     dialog.dismiss()
                 } else {
-                    Toast.makeText(this, "Please enter a device name.", Toast.LENGTH_SHORT).show()
+                    if(!canMonitor) {
+                        Toast.makeText(this, "No permissions granted, cannot monitor with this device.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Please enter a device name.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -183,6 +188,7 @@ class MainActivity : AppCompatActivity(), MainRecyclerViewAdapter.Listener {
     }
 
     private fun init() {
+        canMonitor = true
         subscribeObservers()
         setUserId()
     }

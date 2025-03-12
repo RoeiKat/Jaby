@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.FrameLayout
@@ -33,13 +34,12 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
     //Used by watching device
     private var monitorDevice:String?=null
-    private var isMonitorMicrophoneMuted = true
     //Used by both devices
     private var userId:String?=null
     private var isMonitor:Boolean = false
     private var currentDevice:String?=null
     private var isEarSpeakerMode = false
-    private var isMicrophoneMuted = true
+    private var isMicrophoneMuted = false
     //Surface view renderers
     private var remoteViewRenderer: SurfaceViewRenderer? = null
     private var localViewRenderer: SurfaceViewRenderer? = null
@@ -59,6 +59,7 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
         super.onCreate(savedInstanceState)
         views = ActivityMonitorBinding.inflate(layoutInflater)
         setContentView(views.root)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         init()
     }
 
@@ -99,8 +100,6 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
             setupToggleAudioDevice()
 
-            setupMonitorAudioToggleClicked()
-
             setupMicToggleClicked()
 
             remoteView.visibility = View.INVISIBLE
@@ -113,7 +112,9 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
                 }
                 endMonitorButton.setOnClickListener{
                     mainServiceRepository.sendEndStreaming()
-                    removeWatcher()
+//                    removeWatcher()
+                    moveToMainActivity()
+                    finish()
                 }
                 //Send watching request
                 mainServiceRepository.sendStartWatching(monitorDevice!!)
@@ -125,38 +126,15 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
                 monitorTitleTv.text = "Monitoring on $monitorDevice"
                 endMonitorButton.setOnClickListener{
                     mainServiceRepository.sendEndStreaming()
-                    removeDevice()
+//                    removeDevice()
+                    moveToMainActivity()
+                    finish()
                 }
             }
         }
 
     }
 
-    private fun setupMonitorAudioToggleClicked(){
-        views.apply {
-            if (isMonitor) {
-                toggleMonitorMicrophoneButton.visibility = View.GONE
-            } else {
-                if(isMonitorMicrophoneMuted) {
-                    toggleMonitorMicrophoneButton.setImageResource(R.drawable.ic_speaker_on)
-                } else {
-                    toggleMonitorMicrophoneButton.setImageResource(R.drawable.ic_speaker_off)
-                }
-                isMonitorMicrophoneMuted = !isMonitorMicrophoneMuted
-                // Button Setup
-                toggleMonitorMicrophoneButton.setOnClickListener {
-                    if (isMonitorMicrophoneMuted){
-                        mainServiceRepository.sendToggleMonitorMicrophoneOn()
-                        toggleMonitorMicrophoneButton.setImageResource(R.drawable.ic_speaker_on)
-                    }else{
-                        mainServiceRepository.sendToggleMonitorMicrophoneOff()
-                        toggleMonitorMicrophoneButton.setImageResource(R.drawable.ic_speaker_off)
-                    }
-                    isMonitorMicrophoneMuted = !isMonitorMicrophoneMuted
-                    }
-                }
-            }
-    }
 
     private fun setupMicToggleClicked(){
         views.apply {
@@ -223,7 +201,9 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     }
 
     override fun onEndMonitoringReceived() {
-        removeWatcher()
+//        removeWatcher()
+        moveToMainActivity()
+        finish()
     }
     override fun onEndWatchingReceived() {
         remoteViewRenderer?.clearImage()
@@ -232,8 +212,12 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
 
     override fun closeMonitorReceived() {
         mainServiceRepository.sendEndStreaming()
-        removeDevice()
+//        removeDevice()
+        moveToMainActivity()
+        finish()
     }
+
+
 
     override fun onWatchRequestReceived(model: DataModel) {
         mainRepository.setTarget(model.sender!!)
@@ -246,8 +230,8 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                moveToMainActivity()
-                finish()
+//                moveToMainActivity()
+//                finish()
             }
         }
     }
@@ -257,8 +241,8 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
             if(!isDone) {
                 Toast.makeText(this, reason, Toast.LENGTH_SHORT).show()
             } else {
-                moveToMainActivity()
-                finish()
+//                moveToMainActivity()
+//                finish()
             }
         }
     }
@@ -280,5 +264,10 @@ class MonitorActivity : AppCompatActivity(), MainService.Listener {
     override fun onDestroy() {
         super.onDestroy()
         removeData()
+        if(isMonitor) {
+            removeDevice()
+        } else {
+            removeWatcher()
+        }
     }
 }

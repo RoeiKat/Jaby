@@ -36,4 +36,5 @@
     <string name="resend">Resend</string>
     <string name="verification_msg">Now let\'s verify your account, we\'ve sent you a verification E-mail\nPlease check your E-mail and verify</string>
     <string name="app_icon_desc">jaby</string>
+    <string name="no_monitor_text">You currently don\'t have any monitor device online.\nYou can make this device a monitor\nby clicking this button</string>
 </resources>
