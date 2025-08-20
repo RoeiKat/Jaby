@@ -2,6 +2,13 @@
 
 Jaby is an Android application developed in Kotlin that empowers parents to monitor their baby in real time through both video and audio streaming. Using WebRTC technology, Jaby creates a secure, low-latency connection between devices for seamless monitoring.
 
+## Demo Video
+
+Watch a short demo of Jaby in action:
+
+[![Jaby Demo](https://img.youtube.com/vi/0KSinhfkGaI/0.jpg)](https://www.youtube.com/watch?v=0KSinhfkGaI)
+
+
 ## Features
 
 - **Real-Time Audio & Video Streaming:** Access live streams of your baby instantly.
